@@ -1,0 +1,27 @@
+OK: Título do Studio carregado
+OK: Logo SVG original renderizado
+OK: Aba painel: Nenhuma análise ainda
+OK: Aba simulador: Laboratório de hipóteses
+OK: Aba creative: Creative Lab
+OK: Aba jornada: Jornada e Atlas
+OK: Aba comparar: Comparar A × B
+OK: Aba testes: Testes
+OK: Aba aprendizados: Aprendizados
+OK: Aba historico: Histórico
+OK: Aba pergunte: Pergunte ao Claude
+OK: Cartas de vieses presentes: 24
+OK: Seleção de mecanismos funciona
+OK: Quatro vistas do cérebro disponíveis
+Info: mapa 3D canvas = true
+OK: Troca de vista frontal pausa giro
+OK: Vistas também aparecem no Atlas
+OK: Contagens negativas rejeitadas
+OK: Teste em andamento não declara vencedor
+OK: Sem confirmação de plano não declara vencedor
+OK: Cálculo de conversão A/B executado
+OK: Confirmação do planejamento no formulário A/B
+OK: Diagnóstico com dados sintéticos renderiza
+OK: Comparador A/B renderiza duas análises
+OK: Creative Lab renderiza canal e diretrizes
+OK: Layout mobile sem overflow horizontal: {"width":390,"scroll":390}
+Info: erros de console = 0

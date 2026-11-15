@@ -1,0 +1,1350 @@
+<title>ROD Neuro Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Permanent+Marker&display=swap">
+<style>
+/* Layout: barra fixa com marca + análise + abas; abaixo, uma vista por vez (Painel, Simulador, Histórico, Pergunte). */
+:root{
+  --bg:#f1f0ec; --surface:#ffffff; --ink:#131313; --mute:#5d5b56; --line:#dddbd5; --soft:#e8e6e0;
+  --accent:#ffcf1a; --on-accent:#131313;
+  --ok:#137a51; --warn:#9a6a00; --bad:#c2392b; --na:#9a978f;
+  --okbg:#dff2e8; --warnbg:#fbefcf; --badbg:#fadfda; --nabg:#ebe9e3;
+  --gold:#8a6600; --silver:#5f6470; --purple:#6a4cc8;
+  --lv-prev:#1f6fb8; --lv-hip:#7a4fc0; --lv-res:#137a51;
+  --f-display:"Space Grotesk",Inter,system-ui,sans-serif;
+  --f-body:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-tag:"Permanent Marker","Space Grotesk",cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surface:#1a1a19; --ink:#f1f0ec; --mute:#a3a19b; --line:#2c2c2a; --soft:#242423;
+  --okbg:#13352a; --warnbg:#3a2f0e; --badbg:#3c1c17; --nabg:#262624;
+  --gold:#e3b52a; --silver:#a9aeb8; --purple:#a48cf0; --lv-prev:#6db3f2; --lv-hip:#b79cf5; --lv-res:#4fcf94; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surface:#1a1a19; --ink:#f1f0ec; --mute:#a3a19b; --line:#2c2c2a; --soft:#242423;
+  --okbg:#13352a; --warnbg:#3a2f0e; --badbg:#3c1c17; --nabg:#262624;
+  --gold:#e3b52a; --silver:#a9aeb8; --purple:#a48cf0; --lv-prev:#6db3f2; --lv-hip:#b79cf5; --lv-res:#4fcf94; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15.5px/1.55 var(--f-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand svg{width:30px;height:auto;color:var(--ink)}
+.brand b{font-family:var(--f-tag);font-size:22px;font-weight:400;letter-spacing:.02em}
+.brand span{font-family:var(--f-display);font-weight:600;color:var(--mute);font-size:14px}
+.pick{display:flex;align-items:center;gap:8px;min-width:0}
+.pick label{font-size:13px;color:var(--mute);font-weight:600}
+select{background:var(--soft);color:var(--ink);border:0;border-radius:10px;padding:8px 10px;font:600 14px var(--f-body);max-width:min(60vw,320px)}
+.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:12px;overflow-x:auto;max-width:100%}
+.tabs a{text-decoration:none;color:var(--mute);font:600 14px var(--f-display);padding:7px 12px;border-radius:9px;white-space:nowrap}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.main{max-width:1240px;margin:0 auto;padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font:700 clamp(26px,4vw,40px)/1.08 var(--f-display);margin:0;letter-spacing:-.02em;text-wrap:balance}
+h2{font:700 20px/1.2 var(--f-display);margin:0;letter-spacing:-.01em}
+h3{font:650 16.5px/1.3 var(--f-display);margin:0}
+.lead{color:var(--mute);margin:6px 0 0;max-width:68ch}
+.sec{margin-top:28px}
+.shead{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:12px}
+.shead p{margin:0;color:var(--mute);font-size:14.5px}
+.card{background:var(--surface);border-radius:16px;padding:18px;min-width:0}
+.grid{display:grid;gap:14px}
+.auto{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13.5px}
+.chip b{color:var(--mute);font-weight:600;margin-right:4px}
+.ev{font:700 11.5px/1 var(--f-body);letter-spacing:.04em;border-radius:999px;padding:4px 9px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.ev::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.ev-ROBUSTO{color:var(--gold);background:color-mix(in srgb,var(--gold) 15%,transparent)}
+.ev-CONTEXTUAL{color:var(--silver);background:color-mix(in srgb,var(--silver) 16%,transparent)}
+.ev-TESTAR{color:var(--purple);background:color-mix(in srgb,var(--purple) 15%,transparent)}
+details.how{margin-top:10px;font-size:14px;color:var(--mute)}
+details.how summary{cursor:pointer;font-weight:600;color:var(--ink);list-style:none;display:inline-flex;align-items:center;gap:8px}
+details.how summary::-webkit-details-marker{display:none}
+details.how summary::before{content:"?";display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);font-size:12px}
+details.how p{margin:8px 0 0}
+.empty{background:var(--surface);border-radius:16px;padding:28px;max-width:720px}
+.empty h2{margin-bottom:8px}
+.empty ol{margin:10px 0 0;padding-left:20px}
+.note{font-size:13.5px;color:var(--mute)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
+
+/* painel */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;margin-top:20px}
+@media (max-width:820px){.hero{grid-template-columns:1fr}}
+.peca{display:grid;place-items:center;background:var(--surface);border-radius:16px;padding:16px;min-height:220px}
+.peca img{max-height:360px;object-fit:contain;border-radius:8px}
+.gauge{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.big{font:700 52px/1 var(--f-display)}
+.big small{font-size:22px;color:var(--mute)}
+.verdict{font:650 18px/1.3 var(--f-display);margin:4px 0 0}
+.resumo{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:16px}
+.quote{margin:0 0 14px;font:600 clamp(18px,2.3vw,23px)/1.35 var(--f-display);letter-spacing:-.01em}
+.ibox{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px}
+.ibox div{background:var(--soft);border-radius:12px;padding:10px 12px}
+.lab{display:block;font:700 12px/1.3 var(--f-body);color:var(--mute);letter-spacing:.05em;text-transform:uppercase}
+.iprow{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(0,1.2fr);gap:14px;padding:11px 0;align-items:start}
+.iprow + .iprow{border-top:1px solid var(--line)}
+@media (max-width:700px){.iprow{grid-template-columns:1fr;gap:4px}.ihead{display:none}}
+.st{display:inline-flex;align-items:center;gap:8px;font-weight:650}
+.ic{flex:none;width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-weight:800;font-size:12px;color:#fff}
+.i-ok{background:var(--ok)} .i-parcial{background:var(--warn)} .i-falha{background:var(--bad)} .i-na{background:var(--na)}
+.bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px;transition:width .45s ease}
+.lrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.score{font:700 22px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.score small{font-size:13px;color:var(--mute)}
+.ci{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:12px;font-size:14px}
+.ci b{display:block}
+.ci span.n{color:var(--mute);font-size:13px}
+.s-ok{background:var(--okbg)} .s-parcial{background:var(--warnbg)} .s-falha{background:var(--badbg)} .s-na{background:var(--nabg)}
+.sem{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px}
+.semc{border-radius:16px;padding:16px}
+.semc ul{margin:8px 0 0;padding-left:18px} .semc li{margin:3px 0}
+.fix{background:var(--surface);border-radius:16px;padding:16px;display:flex;gap:12px}
+.fix + .fix{margin-top:10px}
+.num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:800}
+.rows{display:grid;grid-template-columns:76px 1fr;gap:4px 12px;font-size:14.5px;margin-top:6px}
+.rows dt{color:var(--mute);font-weight:600} .rows dd{margin:0;min-width:0}
+.ex{background:var(--soft);border-radius:10px;padding:7px 11px}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pill{font:650 12.5px var(--f-body);border-radius:999px;padding:3px 10px;background:var(--soft)}
+.corr{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:860px){.corr{grid-template-columns:1fr}}
+.matrix svg{width:100%;max-width:330px;display:block;margin:0 auto}
+figure{margin:0;background:var(--surface);border-radius:16px;padding:12px}
+figure img{width:100%;border-radius:10px;display:block}
+figcaption{font-size:14px;color:var(--mute);margin-top:8px}
+figure.wide{grid-column:1/-1}
+.vc.rec{box-shadow:inset 0 0 0 2px var(--ink)}
+.tagrec{display:inline-block;font:700 11.5px var(--f-body);letter-spacing:.05em;background:var(--accent);color:var(--on-accent);border-radius:6px;padding:2px 7px;margin-bottom:6px}
+.sapl{margin:10px 0 0;background:var(--soft);border-radius:10px;padding:9px 11px;font-size:14.5px}
+.sfonte{margin:8px 0 0;font-size:13px;color:var(--mute)}
+.radar svg{width:100%;max-width:400px;display:block;margin:0 auto}
+
+/* simulador */
+.sim{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:16px;align-items:start;margin-top:18px}
+@media (max-width:920px){.sim{grid-template-columns:1fr}}
+.stage{background:#0d0d0f;border-radius:16px;position:relative;overflow:hidden;height:min(56vh,440px);min-height:300px}
+.stage canvas{display:block;width:100%;height:100%}
+.stage .hint{position:absolute;left:12px;top:10px;color:#cfcfcf;font-size:12.5px;pointer-events:none}
+.stage .vis{position:absolute;right:10px;bottom:10px;display:flex;gap:6px}
+.stage .vis button{background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;cursor:pointer}
+.lbl3d{position:absolute;transform:translate(-50%,-150%);padding:2px 8px;border-radius:999px;font:650 12px var(--f-body);white-space:nowrap;pointer-events:none;background:rgba(15,15,15,.85);color:#fff}
+.meters{margin-top:14px}
+.meter{display:grid;grid-template-columns:96px minmax(0,1fr) 54px;gap:10px;align-items:center;padding:6px 0}
+.meter b{font:600 14px var(--f-display)}
+.meter .val{font:700 16px var(--f-display);text-align:right;font-variant-numeric:tabular-nums}
+.delta{font-size:12px;font-weight:700;margin-left:4px}
+.up{color:var(--ok)} .down{color:var(--bad)}
+.hud{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.mission{min-width:0}
+.mission .bar{height:12px;margin-top:6px}
+.decks{display:grid;gap:16px}
+.deck h3{margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:8px}
+.cc{position:relative;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 11px 11px;cursor:pointer;min-height:92px;
+  display:flex;flex-direction:column;gap:6px;transition:transform .12s ease, background .15s ease}
+.cc:hover{transform:translateY(-2px)}
+.cc .cn{font:650 14px/1.25 var(--f-display)}
+.cc .gem{width:10px;height:10px;border-radius:50%;flex:none}
+.cc .row{display:flex;align-items:center;gap:6px;justify-content:space-between}
+.cc .tiny{font-size:11.5px;color:var(--mute);font-weight:600}
+.cc[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cc[aria-pressed="true"] .tiny{color:color-mix(in srgb,var(--bg) 70%,transparent)}
+.cc.trap{border-style:dashed}
+.cc .sug{position:absolute;top:-8px;right:8px;background:var(--accent);color:var(--on-accent);font:700 10.5px var(--f-body);border-radius:6px;padding:1px 6px}
+.cc .orig{position:absolute;top:-8px;left:8px;background:var(--soft);color:var(--ink);font:700 10.5px var(--f-body);border-radius:6px;padding:1px 6px}
+.explain{margin-top:14px}
+.explain .big-t{font:650 17px/1.35 var(--f-display);margin:6px 0 0}
+.alerts{display:grid;gap:8px;margin-top:12px}
+.alert{border-radius:12px;padding:10px 12px;font-size:14px}
+.a-bad{background:var(--badbg)} .a-ok{background:var(--okbg)} .a-warn{background:var(--warnbg)}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:9px 16px;font:650 14px var(--f-display);cursor:pointer}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* histórico e pergunte */
+.hist{display:grid;gap:10px}
+.hi{display:flex;gap:14px;align-items:center;background:var(--surface);border-radius:14px;padding:12px 14px;cursor:pointer;border:0;text-align:left;width:100%}
+.hi .nota{font:700 26px var(--f-display);min-width:48px;text-align:center}
+.hi .meta{color:var(--mute);font-size:13.5px}
+.ask textarea{width:100%;min-height:96px;background:var(--soft);color:var(--ink);border:0;border-radius:12px;padding:12px;font:15px/1.5 var(--f-body);resize:vertical}
+.chat{display:grid;gap:10px;margin-top:14px}
+.msg{border-radius:14px;padding:12px 14px;white-space:pre-wrap;max-width:80ch}
+.msg.u{background:var(--ink);color:var(--bg);justify-self:end}
+.msg.c{background:var(--surface)}
+.lvl{display:inline-flex;align-items:center;gap:6px;font:700 11.5px/1 var(--f-body);letter-spacing:.04em;text-transform:uppercase;border-radius:6px;padding:5px 8px;white-space:nowrap}
+.lvl::before{content:"";width:8px;height:8px;border-radius:2px;background:currentColor}
+.lvl-prev{color:var(--lv-prev);background:color-mix(in srgb,var(--lv-prev) 14%,transparent)}
+.lvl-hip{color:var(--lv-hip);background:color-mix(in srgb,var(--lv-hip) 14%,transparent)}
+.lvl-res{color:var(--lv-res);background:color-mix(in srgb,var(--lv-res) 14%,transparent)}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px;margin-top:16px}
+.levels div{background:var(--surface);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--mute)}
+.levels b{display:block;color:var(--ink);margin-top:6px}
+.tagline{font:600 13px var(--f-display);color:var(--mute)}
+@media (max-width:700px){.tagline{display:none}}
+.explain a{color:var(--ink);font-weight:700}
+.form label{display:block;font:600 13px var(--f-body);color:var(--mute);margin:12px 0 4px}
+.form input,.form textarea{width:100%;background:var(--soft);color:var(--ink);border:0;border-radius:10px;padding:10px 12px;font:15px/1.4 var(--f-body)}
+.form textarea{min-height:84px;resize:vertical}
+.form fieldset{border:0;padding:0;margin:14px 0 0}
+.form legend{font:700 15px var(--f-display);padding:0}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:0 12px}
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,110px),1fr));gap:0 10px}
+.jor{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px}
+.etapa{background:var(--surface);border-radius:14px;padding:14px;min-width:0}
+.etapa h3{margin-top:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top"><div class="top-in">
+  <div class="brand">
+    <svg viewBox="300 50 230 380" aria-hidden="true"><g fill="currentColor" stroke="currentColor">
+      <g transform="translate(420,168) rotate(-5) scale(0.86) translate(-420,-186)">
+        <path d="M340,190 Q420,184 500,178" fill="none" stroke-width="17" stroke-linecap="round"/>
+        <path d="M353,182 L363,116 L393,158 L420,96 L447,158 L477,116 L487,179" fill="none" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="363" cy="106" r="12" stroke="none"/><circle cx="420" cy="84" r="14" stroke="none"/><circle cx="477" cy="106" r="12" stroke="none"/></g>
+      <path d="M401,213 A17,17 0 0 0 372,207 A17,17 0 0 0 347,230 A21,21 0 0 0 339,270 A22,22 0 0 0 341,312 A21,21 0 0 0 358,350 A22,22 0 0 0 395,374 L401,362 Z" fill="none" stroke-width="20" stroke-linejoin="round"/>
+      <path d="M401,247 C386,245 375,256 379,273 M343,296 C359,292 371,301 373,316" fill="none" stroke-width="16" stroke-linecap="round"/>
+      <path d="M429,213 A17,17 0 0 1 458,207 A17,17 0 0 1 483,230 A21,21 0 0 1 491,270 A22,22 0 0 1 489,312 A21,21 0 0 1 472,350 A22,22 0 0 1 435,374 L429,362 Z" fill="none" stroke-width="20" stroke-linejoin="round"/>
+      <path d="M429,247 C444,245 455,256 451,273 M487,296 C471,292 459,301 457,316" fill="none" stroke-width="16" stroke-linecap="round"/>
+    </g></svg>
+    <b>ROD</b><span>Neuro Studio</span><span class="tagline">· Da hipótese comportamental à decisão criativa</span>
+  </div>
+  <div class="pick"><label for="selAnalise">Análise</label><select id="selAnalise"><option value="">Carregando…</option></select></div>
+  <nav class="tabs" aria-label="Seções">
+    <a href="#painel">Painel</a><a href="#simulador">Laboratório</a><a href="#creative">Creative Lab</a><a href="#jornada">Jornada e Atlas</a><a href="#comparar">Comparar A × B</a><a href="#testes">Testes</a><a href="#aprendizados">Aprendizados</a><a href="#historico">Histórico</a><a href="#pergunte">Pergunte ao Claude</a>
+  </nav>
+</div></header>
+<main class="main" id="view"></main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* =========================================================
+   DADOS FIXOS: leituras, regiões do cérebro e cartas do jogo
+   ========================================================= */
+const LEIT = [
+  {k:"atencao",  n:"Atenção",   teen:"É a peça ser notada. O cérebro ignora quase tudo que vê; só passa o que tem contraste, rosto, movimento ou algo fora do padrão."},
+  {k:"carga",    n:"Carga",     teen:"É o esforço para entender. Quanto mais fácil, mais a pessoa confia. Se ela precisa pensar demais, ela desiste e rola o feed."},
+  {k:"emocao",   n:"Emoção",    teen:"É o que a pessoa sente. Sem sentir nada, o cérebro não dá importância e não guarda. Dá para dizer a emoção em uma palavra?"},
+  {k:"memoria",  n:"Memória",   teen:"É o que sobra depois. Marca lembrada é marca escolhida. Repetir algo só seu (cor, forma, frase) é o que gruda."},
+  {k:"confianca",n:"Confiança", teen:"É acreditar. Promessa sem prova acende o modo desconfiado. Números reais, gente real e garantia acalmam."},
+  {k:"decisao",  n:"Decisão",   teen:"É saber o que fazer agora. Um botão claro e poucos passos. Cada caminho extra é uma chance de ir embora."}
+];
+const NORM = s => String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+const LKEY = {}; LEIT.forEach(l=>{LKEY[NORM(l.n)]=l.k; LKEY[l.k]=l.k;});
+
+const ATLAS = {
+  visual:{nome:"Córtex visual", p:[0.32,0.08,-0.97], bi:1, prof:0},
+  fusiforme:{nome:"Giro fusiforme (rostos)", p:[0.5,-0.36,-0.42], bi:1, prof:0},
+  parietal:{nome:"Parietal (atenção dirigida)", p:[0.56,0.5,-0.5], bi:1, prof:0},
+  tpj:{nome:"Junção temporoparietal", p:[0.76,0.14,-0.42], bi:1, prof:0},
+  auditivo:{nome:"Córtex auditivo", p:[0.8,-0.06,-0.02], bi:1, prof:0},
+  s1:{nome:"Somatossensorial (tato)", p:[0.58,0.55,-0.12], bi:1, prof:0},
+  motor:{nome:"Córtex motor", p:[0.52,0.6,0.08], bi:1, prof:0},
+  dlpfc:{nome:"Pré-frontal (pensar devagar)", p:[0.62,0.38,0.66], bi:1, prof:0},
+  ofc:{nome:"Orbitofrontal (valor)", p:[0.26,-0.22,0.86], bi:1, prof:0},
+  acc:{nome:"Cingulado (conflito)", p:[0.12,0.27,0.45], bi:1, prof:1},
+  insula:{nome:"Ínsula (risco, dor de pagar)", p:[0.6,0.0,0.15], bi:1, prof:1},
+  amigdala:{nome:"Amígdala (relevância)", p:[0.36,-0.27,0.17], bi:1, prof:1},
+  hipocampo:{nome:"Hipocampo (memória)", p:[0.38,-0.22,-0.15], bi:1, prof:1},
+  estriado:{nome:"Estriado (querer)", p:[0.2,-0.05,0.32], bi:1, prof:1},
+  olfativo:{nome:"Via olfativa", p:[0.18,-0.38,0.58], bi:1, prof:1},
+  hipotalamo:{nome:"Hipotálamo (corpo)", p:[0,-0.32,0.22], bi:0, prof:1}
+};
+
+/* e = efeito nas leituras; r = regiões; ev = evidência; teen = explicação simples */
+const CARTAS = [
+ // Atenção
+ {id:"rosto",d:"Atenção",n:"Rosto humano",ev:"ROBUSTO",e:{atencao:2,emocao:1,confianca:1},r:{fusiforme:.95,amigdala:.4,tpj:.4},
+  teen:"O cérebro tem uma área só para achar rostos. Um rosto na peça é a primeira coisa que o olho procura."},
+ {id:"olhar_cta",d:"Atenção",n:"Olhar apontando para a ação",ev:"ROBUSTO",e:{atencao:1,decisao:2},r:{parietal:.7,fusiforme:.5},
+  teen:"Se a pessoa da foto olha para o botão, você olha junto sem perceber. É um atalho do cérebro."},
+ {id:"contraste",d:"Atenção",n:"Contraste forte no principal",ev:"ROBUSTO",e:{atencao:2,carga:1},r:{visual:.95},
+  teen:"Claro contra escuro é o que o olho vê primeiro. Se tudo tem a mesma força, nada se destaca."},
+ {id:"surpresa",d:"Atenção",n:"Quebra de padrão / surpresa",ev:"ROBUSTO",e:{atencao:2,memoria:2,carga:-1},r:{tpj:.75,amigdala:.45,hipocampo:.4},
+  teen:"O que foge do esperado chama atenção e fica na memória. Mas surpresa demais confunde."},
+ // Emoção
+ {id:"historia",d:"Emoção",n:"História de uma pessoa real",ev:"ROBUSTO",e:{emocao:2,memoria:2,carga:-1},r:{hipocampo:.8,tpj:.7,auditivo:.3},
+  teen:"A gente lembra de histórias muito melhor que de números. Uma pessoa real com começo, problema e final vira lembrança."},
+ {id:"estado_final",d:"Emoção",n:"Mostrar o resultado desejado",ev:"CONTEXTUAL",e:{emocao:2,decisao:1},r:{estriado:.8,ofc:.5},
+  teen:"Mostrar como a vida fica depois dá vontade. O cérebro gosta mais de antecipar o prêmio do que de ver o produto parado."},
+ {id:"som",d:"Emoção",n:"Voz, música ou jingle",ev:"CONTEXTUAL",e:{emocao:1,memoria:1},r:{auditivo:.95,hipocampo:.3},
+  teen:"Som cria clima e ajuda a lembrar. Funciona melhor quando combina com a marca."},
+ {id:"sensorial",d:"Emoção",n:"Toque, cheiro ou sabor",ev:"CONTEXTUAL",e:{emocao:1,memoria:2,confianca:1},r:{s1:.7,olfativo:.7,amigdala:.35},
+  teen:"Cheiro e toque vão direto para emoção e memória. Na loja, deixar tocar dá segurança para comprar."},
+ // Confiança
+ {id:"prova_social",d:"Confiança",n:"Prova social com número real",ev:"ROBUSTO",e:{confianca:2,decisao:1},r:{tpj:.6,ofc:.5},
+  teen:"Quando não sabemos o que fazer, copiamos gente parecida com a gente. Mas precisa ser número de verdade."},
+ {id:"garantia",d:"Confiança",n:"Garantia e troca claras",ev:"ROBUSTO",e:{confianca:2,decisao:1},r:{insula:.25,dlpfc:.3},
+  teen:"Medo de errar trava a compra. Dizer como funciona a troca tira esse medo."},
+ {id:"halo",d:"Confiança",n:"Visual caprichado",ev:"ROBUSTO",e:{confianca:1,emocao:1},r:{ofc:.6,visual:.4},
+  teen:"Primeira impressão contamina tudo. Se parece bem-feito, o cérebro acha que o produto também é."},
+ {id:"autoridade",d:"Confiança",n:"Especialista ou selo relevante",ev:"CONTEXTUAL",e:{confianca:2},r:{dlpfc:.4,ofc:.4},
+  teen:"A gente confia em quem entende do assunto. Só funciona se o público respeitar essa autoridade."},
+ // Decisão
+ {id:"cta_unico",d:"Decisão",n:"Um botão claro, uma ação",ev:"ROBUSTO",e:{decisao:2,carga:1},r:{motor:.55,parietal:.4},
+  teen:"Uma ação só, escrita com o verbo certo. Dois caminhos iguais fazem a pessoa não escolher nenhum."},
+ {id:"ancora",d:"Decisão",n:"Preço com referência real",ev:"ROBUSTO",e:{decisao:2},r:{ofc:.8,parietal:.6,insula:.35},
+  teen:"O primeiro número que vemos vira a régua para todos os outros. A referência tem que ser verdadeira."},
+ {id:"perda",d:"Decisão",n:"Mostrar o custo de não agir",ev:"ROBUSTO",e:{emocao:2,decisao:1},r:{amigdala:.7,insula:.5},
+  teen:"Perder dói mais do que ganhar alegra. Mas mostre sempre a saída logo em seguida, senão vira só medo."},
+ {id:"escassez_real",d:"Decisão",n:"Prazo ou vaga real, explicado",ev:"CONTEXTUAL",e:{decisao:2},r:{amigdala:.45,estriado:.4},
+  teen:"Se a oportunidade acaba de verdade, a pessoa age. Explique por que é limitado."},
+ {id:"default",d:"Decisão",n:"Opção recomendada já marcada",ev:"ROBUSTO",e:{decisao:3,carga:1},r:{dlpfc:.15},
+  teen:"A opção que já vem marcada é a mais escolhida — é a alavanca mais forte que existe. Use a favor do cliente."},
+ {id:"marca_repetida",d:"Memória",n:"Elemento da marca repetido",ev:"ROBUSTO",e:{memoria:3,atencao:1},r:{fusiforme:.5,hipocampo:.65},
+  teen:"Repetir algo só seu (cor, forma, frase) faz a marca ser reconhecida antes de ler o nome."},
+ {id:"final_forte",d:"Memória",n:"Final marcante",ev:"ROBUSTO",e:{memoria:2,emocao:1},r:{hipocampo:.7,estriado:.35},
+  teen:"A gente lembra do pico e do final de uma experiência. Termine forte, não no logo parado."},
+ // Armadilhas
+ {id:"elementos_demais",d:"Armadilhas",n:"Elementos demais",ev:"ROBUSTO",trap:1,e:{atencao:-2,carga:-3},r:{visual:.5,acc:.55},
+  teen:"O cérebro capta uns 3 ou 4 grupos de uma vez. Passou disso, vira bagunça e a pessoa desiste."},
+ {id:"jargao",d:"Armadilhas",n:"Texto difícil / jargão",ev:"ROBUSTO",trap:1,e:{carga:-3,confianca:-1},r:{dlpfc:.8,acc:.5},
+  teen:"Palavra difícil cansa. E o que cansa parece menos verdadeiro, mesmo que seja."},
+ {id:"superlativo",d:"Armadilhas",n:"\"O melhor\" sem prova",ev:"ROBUSTO",trap:1,e:{confianca:-2},r:{acc:.4,dlpfc:.4},
+  teen:"Dizer que é o melhor sem mostrar nada liga o alarme de desconfiança."},
+ {id:"escassez_falsa",d:"Armadilhas",n:"Contador ou estoque falso",ev:"ROBUSTO",trap:1,e:{decisao:1,confianca:-3},r:{amigdala:.6,acc:.5},legal:1,
+  teen:"Pode até apressar alguém hoje, mas é propaganda enganosa (CDC) e quem percebe nunca mais confia."},
+ {id:"dois_ctas",d:"Armadilhas",n:"Vários botões do mesmo peso",ev:"ROBUSTO",trap:1,e:{decisao:-2,carga:-1},r:{acc:.6,dlpfc:.4},
+  teen:"Com vários caminhos iguais, a pessoa trava. Escolha um principal."}
+];
+const CMAP = Object.fromEntries(CARTAS.map(c=>[c.id,c]));
+const COMBOS = [
+  {all:["prova_social","ancora"],e:{decisao:1},t:"Combo: prova social + referência de preço — comparar fica seguro."},
+  {all:["historia","estado_final"],e:{emocao:1},t:"Combo: história + resultado — a pessoa se imagina no final da história."},
+  {all:["rosto","olhar_cta"],e:{decisao:1},t:"Combo: rosto que olha para a ação — o olho vai direto ao botão."},
+  {all:["marca_repetida","final_forte"],e:{memoria:1},t:"Combo: marca no final marcante — a lembrança fica ligada à marca."}
+];
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+let analises = [], atual = null, ativas = new Set(), iniciais = new Set(), ultimaCarta = null;
+let chat = [];
+const view = document.getElementById("view");
+const sel = document.getElementById("selAnalise");
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $ = h => {const t=document.createElement("template");t.innerHTML=h.trim();return t.content.firstElementChild;};
+const evk = e => {e=String(e||"").toUpperCase();return e.includes("ROBUST")?"ROBUSTO":e.includes("CONTEXT")?"CONTEXTUAL":"TESTAR";};
+const evc = e => {const k=evk(e);return `<span class="ev ev-${k}">${k==="TESTAR"?"A TESTAR":k}</span>`;};
+const how = t => t?`<details class="how"><summary>Como ler</summary><p>${esc(t)}</p></details>`:"";
+const stc = {verde:"var(--ok)",amarelo:"var(--warn)",vermelho:"var(--bad)"};
+const statusDe = v => v>=7?"verde":v>=5?"amarelo":"vermelho";
+
+function baseLeituras(a){
+  const b={}; LEIT.forEach(l=>b[l.k]=5);
+  (a&&a.leituras||[]).forEach(l=>{const k=LKEY[NORM(l.nome)]; if(k) b[k]=Number(l.nota)||0;});
+  return b;
+}
+
+/* =========================================================
+   ROTAS
+   ========================================================= */
+const ROTAS = ["painel","simulador","creative","jornada","comparar","testes","aprendizados","historico","pergunte"];
+function rota(){ const h=location.hash.slice(1); return ROTAS.includes(h)?h:"painel"; }
+function marcarAba(){ document.querySelectorAll(".tabs a").forEach(a=>a.setAttribute("aria-current", a.getAttribute("href")==="#"+rota()?"page":"false")); }
+addEventListener("hashchange",()=>{marcarAba();render();});
+
+function selecionar(id){
+  atual = analises.find(a=>a.id===id) || null;
+  const s=(atual&&atual.simulador)||{};
+  iniciais = new Set((s.ativas||[]).filter(i=>CMAP[i]));
+  ativas = new Set(iniciais); ultimaCarta=null; chat=[];
+  sel.value = atual?atual.id:"";
+  try{ localStorage.setItem("rodns.analise", atual?atual.id:""); }catch(e){}
+  render();
+}
+sel.addEventListener("change",()=>selecionar(sel.value));
+
+function render(){
+  marcarAba();
+  const r = rota();
+  if(r!=="simulador"&&r!=="jornada") brain.pause();
+  if(r==="painel") renderPainel();
+  else if(r==="simulador") renderSim();
+  else if(r==="creative") renderCreative();
+  else if(r==="jornada") renderJornada();
+  else if(r==="aprendizados") renderAprendizados();
+  else if(r==="comparar") renderComparar();
+  else if(r==="testes") renderTestes();
+  else if(r==="historico") renderHist();
+  else renderAsk();
+}
+
+/* =========================================================
+   VAZIO
+   ========================================================= */
+function vazio(extra){
+  return $(`<div class="empty"><h2>Nenhuma análise ainda</h2>
+    <p class="lead" style="margin:0">As análises aparecem aqui quando você pede uma no Claude com a skill de neuromarketing: uma peça, ideia, campanha, números ou ação.</p>
+    <ol><li>Mande a peça ou conte a ideia no Claude.</li><li>Responda o cartão de múltipla escolha (intenção, emoção, ação, vieses).</li><li>A análise entra neste Studio e você explora o Painel e o Simulador.</li></ol>
+    ${extra||""}</div>`);
+}
+
+/* =========================================================
+   PAINEL
+   ========================================================= */
+function renderPainel(){
+  view.innerHTML="";
+  const D = atual;
+  if(!D){ view.append(vazio(`<p class="note" style="margin-top:12px">Enquanto isso, o Simulador funciona em modo livre.</p>`)); return; }
+  const ctx=D.contexto||{};
+  view.append($(`<header><h1>${esc(D.titulo)}</h1>${D.subtitulo?`<p class="lead">${esc(D.subtitulo)}</p>`:""}
+    <div class="chips">${[["tipo","Analisando"],["categoria","Categoria"],["publico","Público"],["canal","Canal"],["objetivo","Objetivo"]].filter(([k])=>ctx[k]).map(([k,t])=>`<span class="chip"><b>${t}</b>${esc(ctx[k])}</span>`).join("")}</div></header>`));
+  view.append($(`<div class="levels"><div>${lvl("prev")}<b>O que provavelmente chama atenção</b>Modelo de saliência e hierarquia visual. Previsão, não medição.</div>
+    <div>${lvl("hip")}<b>Por que pode funcionar</b>Mecanismos com evidência científica e seus limites. Interpretação, não medição.</div>
+    <div>${lvl("res")}<b>O que de fato aconteceu</b>Cliques, conversão, vendas ou lembrança medidos em teste.</div></div>`));
+  const nota=Math.max(0,Math.min(5,Number(D.nota)||0));
+  const verd=["Voltar ao briefing","Voltar ao briefing","Refazer a parte problemática","Revisar antes de apresentar","Entrega com ajuste","Entrega"][Math.round(nota)];
+  const gc=nota>=4?"var(--ok)":nota>=3?"var(--warn)":"var(--bad)", C=Math.PI*62;
+  const hero=$(`<div class="hero"></div>`);
+  if(D.imagens&&D.imagens.peca) hero.append($(`<div class="peca"><img alt="Peça analisada" src="${esc(D.imagens.peca)}"></div>`));
+  else hero.style.gridTemplateColumns="1fr";
+  hero.append($(`<div class="card"><div style="margin-bottom:8px">${lvl("hip")} <span class="note">avaliação do analista</span></div><div class="gauge"><svg width="150" height="90" viewBox="0 0 150 90" aria-hidden="true">
+      <path d="M13,80 A62,62 0 0 1 137,80" fill="none" stroke="var(--soft)" stroke-width="14" stroke-linecap="round"/>
+      <path d="M13,80 A62,62 0 0 1 137,80" fill="none" stroke="${gc}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C*nota/5} ${C}"/></svg>
+      <div><div class="big">${nota}<small>/5</small></div><p class="verdict">${verd}</p></div></div>
+    ${D.emocao?`<div class="chips"><span class="chip" style="background:var(--soft)"><b>Emoção</b>${esc(D.emocao)}</span></div>`:""}
+    ${how("5 = passa nas seis leituras · 4 = um ponto amarelo · 3 = dois amarelos ou um vermelho leve · 2 = um vermelho grave · 1 = o problema é anterior à peça (atenção ou clareza).")}
+    ${D.resumo?`<p class="resumo">${esc(D.resumo)}</p>`:""}
+    <div class="btnrow"><a class="btn" href="#simulador" style="text-decoration:none">Abrir o Laboratório</a><a class="btn ghost" href="#pergunte" style="text-decoration:none">Pergunte ao Claude</a></div></div>`));
+  view.append(hero);
+
+  const it=D.intencao||{};
+  if(it.ideia||it.sentir||it.fazer){
+    const s=$(`<section class="sec"><div class="shead"><h2>A ideia de quem criou</h2><p>Tudo aqui é medido contra esta intenção.</p></div><div class="card"></div></section>`);
+    const c=s.querySelector(".card");
+    if(it.ideia) c.append($(`<p class="quote">“${esc(it.ideia)}”</p>`));
+    const bl=[["pensar","Quer que pensem"],["sentir","Quer que sintam"],["fazer","Quer que façam"],["publico","Para quem"]].filter(([k])=>it[k]);
+    if(bl.length) c.append($(`<div class="ibox">${bl.map(([k,t])=>`<div><span class="lab">${t}</span><b>${esc(it[k])}</b></div>`).join("")}</div>`));
+    view.append(s);
+  }
+  if(D.objetivo_comportamental||(D.barreiras&&D.barreiras.length)){
+    const s=$(`<section class="sec"><div class="shead"><h2>Comportamento e barreiras</h2>${lvl("hip")}<p>O que queremos que o público faça e o que o impede hoje.</p></div><div class="card"></div></section>`);
+    const c=s.querySelector(".card");
+    if(D.objetivo_comportamental) c.append($(`<p class="quote" style="margin-bottom:12px">${esc(D.objetivo_comportamental)}</p>`));
+    if(D.barreiras&&D.barreiras.length) c.append($(`<div class="ibox">${D.barreiras.map(b=>`<div><span class="lab">Barreira · peso ${esc(b.peso||"—")}</span><b>${esc(b.nome||(BARR[b.id]||{}).n||b.id)}</b>${b.porque?`<div class="note">${esc(b.porque)}</div>`:""}</div>`).join("")}</div>`));
+    view.append(s);
+  }
+  if(D.intencao_percepcao&&D.intencao_percepcao.length){
+    const ico={ok:"✓",parcial:"!",falha:"✕",na:"–"};
+    const s=$(`<section class="sec"><div class="shead"><h2>Intenção × percepção</h2>${lvl("hip")}<p>O que você quer provocar contra o que o público provavelmente vai sentir.</p></div><div class="card"></div></section>`);
+    const c=s.querySelector(".card");
+    c.append($(`<div class="iprow ihead"><span></span><span class="lab">Sua intenção</span><span class="lab">Percepção provável</span></div>`));
+    D.intencao_percepcao.forEach(r=>{const st=r.status||"parcial";
+      c.append($(`<div class="iprow"><span class="st"><span class="ic i-${st}">${ico[st]}</span>${esc(r.aspecto)}</span><span>${esc(r.intencao)}</span><span>${esc(r.percepcao)} ${r.evidencia?evc(r.evidencia):""}</span></div>`));});
+    c.append($(`<div>${how("Verde: entrega o que você quer. Amarelo: entrega em parte. Vermelho: a percepção provável é outra. É estimativa baseada em evidência; confirme com o teste dos 5 segundos.")}</div>`));
+    view.append(s);
+  }
+
+  if(D.leituras&&D.leituras.length){
+    const s=$(`<section class="sec"><div class="shead"><h2>As seis leituras</h2>${lvl("hip")}<p>Na ordem em que o cérebro processa. Se falha cedo, o resto não chega.</p></div><div class="grid auto"></div></section>`);
+    D.leituras.forEach(l=>{const k=LKEY[NORM(l.nome)], n=Math.max(0,Math.min(10,Number(l.nota)||0)), st=l.status||statusDe(n), c=stc[st];
+      const teen=(LEIT.find(x=>x.k===k)||{}).teen;
+      s.querySelector(".grid").append($(`<div class="card"><div class="lrow"><h3><span class="dot" style="background:${c}"></span>${esc(l.nome)}</h3><span class="score">${n}<small>/10</small></span></div>
+        <div class="bar"><i style="width:${n*10}%;background:${c}"></i></div><p style="margin:12px 0 0">${esc(l.achado)}</p>${how(l.explica||teen)}</div>`));});
+    view.append(s);
+    // radar + checklist
+    const row=$(`<div class="grid sec" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr))"></div>`);
+    const N=D.leituras.length,cx=210,cy=190,R=135,pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/N;return [cx+Math.cos(a)*R*v,cy+Math.sin(a)*R*v];};
+    let g="";[.25,.5,.75,1].forEach(k=>g+=`<polygon points="${D.leituras.map((_,i)=>pt(i,k).join(",")).join(" ")}" fill="none" stroke="var(--line)"/>`);
+    D.leituras.forEach((l,i)=>{const [x,y]=pt(i,1),[lx,ly]=pt(i,1.18);g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--line)"/><text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="600" fill="var(--ink)">${esc(l.nome)}</text>`;});
+    const poly=D.leituras.map((l,i)=>pt(i,(Number(l.nota)||0)/10).join(",")).join(" ");
+    row.append($(`<div class="card radar"><h2>Perfil da peça</h2><p class="lead" style="margin-top:2px">Mais cheio = mais equilibrada.</p><svg viewBox="0 0 420 390" role="img" aria-label="Radar das seis leituras">${g}<polygon points="${poly}" fill="color-mix(in srgb,var(--accent) 40%,transparent)" stroke="var(--ink)" stroke-width="2"/></svg></div>`));
+    if(D.checklist&&D.checklist.length){
+      const ico={ok:"✓",parcial:"!",falha:"✕",na:"–"};
+      const c=$(`<div class="card"><h2>Checklist dos 10 conceitos</h2><p class="lead" style="margin:2px 0 12px">Verde passa · amarelo parcial · vermelho falha · cinza não se aplica.</p><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:8px"></div></div>`);
+      D.checklist.forEach(i=>{const st=i.status||"na";c.querySelector(".grid").append($(`<div class="ci s-${st}"><span class="ic i-${st}">${ico[st]}</span><div><b>${esc(i.nome)}</b>${i.nota?`<span class="n">${esc(i.nota)}</span>`:""}</div></div>`));});
+      row.append(c);
+    }
+    view.append(row);
+  }
+
+  const sm=D.semaforo||{};
+  if(sm.verde||sm.amarelo||sm.vermelho){
+    const s=$(`<section class="sec"><div class="shead"><h2>Semáforo</h2><p>Manter · ajustar · corrigir já.</p></div><div class="sem"></div></section>`);
+    [["okbg","verde","Funciona","var(--ok)"],["warnbg","amarelo","Funciona pela metade","var(--warn)"],["badbg","vermelho","Custa resultado","var(--bad)"]].forEach(([bg,k,t,c])=>{
+      if(sm[k]&&sm[k].length) s.querySelector(".sem").append($(`<div class="semc" style="background:var(--${bg})"><h3><span class="dot" style="background:${c}"></span>${t}</h3><ul>${sm[k].map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`));});
+    view.append(s);
+  }
+
+  if(D.correcoes&&D.correcoes.length){
+    const lvl={baixo:0,"médio":1,medio:1,alto:2};
+    const s=$(`<section class="sec"><div class="shead"><h2>Correções priorizadas</h2><p>Comece pelo quadrado verde: muito impacto, pouco esforço.</p></div><div class="corr"></div></section>`);
+    const cell=86,ox=60,oy=20; let g="";
+    for(let i=0;i<3;i++)for(let j=0;j<3;j++)g+=`<rect x="${ox+j*cell}" y="${oy+i*cell}" width="${cell-4}" height="${cell-4}" rx="10" fill="${i===0&&j===0?"var(--okbg)":"var(--soft)"}"/>`;
+    const pos=D.correcoes.map(c=>[lvl[NORM(c.esforco)]??1, 2-(lvl[NORM(c.impacto)]??1)]), tot={}, seen={};
+    pos.forEach(([e,i])=>tot[e+"-"+i]=(tot[e+"-"+i]||0)+1);
+    pos.forEach(([ef,im],k)=>{const key=ef+"-"+im,t=tot[key],n=seen[key]=(seen[key]||0)+1,cols=Math.min(t,2),col=(n-1)%2,ri=Math.floor((n-1)/2),rows=Math.ceil(t/2);
+      const x=ox+ef*cell+cell/2-2+(col-(cols-1)/2)*34, y=oy+im*cell+cell/2-2+(ri-(rows-1)/2)*34;
+      g+=`<circle cx="${x}" cy="${y}" r="15" fill="var(--ink)"/><text x="${x}" y="${y+1}" text-anchor="middle" dominant-baseline="middle" fill="var(--bg)" font-weight="800" font-size="14">${k+1}</text>`;});
+    g+=`<text x="${ox+1.5*cell}" y="${oy+3*cell+24}" text-anchor="middle" font-size="13" fill="var(--mute)" font-weight="600">Esforço: baixo · médio · alto</text><text transform="translate(20 ${oy+1.5*cell}) rotate(-90)" text-anchor="middle" font-size="13" fill="var(--mute)" font-weight="600">Impacto: baixo · médio · alto</text>`;
+    s.querySelector(".corr").append($(`<div class="card matrix"><h3>Impacto × esforço</h3><svg viewBox="0 0 330 315" role="img" aria-label="Matriz de impacto por esforço">${g}</svg></div>`));
+    const list=$(`<div></div>`);
+    D.correcoes.forEach((c,k)=>list.append($(`<div class="fix"><span class="num">${k+1}</span><div style="flex:1;min-width:0"><h3>${esc(c.titulo)}</h3>
+      <dl class="rows"><dt>Por quê</dt><dd>${esc(c.porque)} ${evc(c.evidencia)}</dd><dt>Ajuste</dt><dd>${esc(c.ajuste)}</dd>${c.exemplo?`<dt>Exemplo</dt><dd><div class="ex">${esc(c.exemplo)}</div></dd>`:""}</dl>
+      <div class="pills"><span class="pill">Impacto: ${esc(c.impacto||"—")}</span><span class="pill">Esforço: ${esc(c.esforco||"—")}</span></div></div></div>`)));
+    s.querySelector(".corr").append(list); view.append(s);
+  }
+
+  const figs=[]; const im=D.imagens||{};
+  if(im.atencao) figs.push({src:im.atencao,titulo:"Rastreamento de atenção previsto",nivel:"prev",texto:"Mapa de calor e ordem provável do olhar. É previsão por saliência, não eye-tracking real: rostos e texto grande puxam mais do que o modelo mostra.",wide:1});
+  (im.extras||[]).forEach(e=>figs.push(e));
+  if(figs.length){
+    const s=$(`<section class="sec"><div class="shead"><h2>Visuais</h2></div><div class="grid auto"></div></section>`);
+    figs.forEach(f=>s.querySelector(".grid").append($(`<figure class="${f.wide?"wide":""}"><img alt="${esc(f.titulo)}" src="${esc(f.src)}"><figcaption>${f.nivel?lvl(f.nivel)+" ":""}<b>${esc(f.titulo)}</b>${f.texto?" — "+esc(f.texto):""}</figcaption></figure>`)));
+    view.append(s);
+  }
+
+  if(D.ciencia&&D.ciencia.length){
+    const s=$(`<section class="sec"><div class="shead"><h2>A ciência por trás</h2>${lvl("hip")}<p>Os achados de neurociência e economia comportamental que sustentam a análise.</p></div><div class="grid auto"></div></section>`);
+    D.ciencia.forEach(c=>s.querySelector(".grid").append($(`<div class="card"><div class="lrow" style="margin:0"><h3>${esc(c.conceito)}</h3>${evc(c.evidencia)}</div>
+      <p style="margin:10px 0 0">${esc(c.o_que_diz)}</p>${c.aplicacao?`<p class="sapl"><b>Na sua ideia:</b> ${esc(c.aplicacao)}</p>`:""}${c.fonte?`<p class="sfonte">${esc(c.fonte)} · <a href="${c.link?esc(c.link):scholar(c.fonte+" "+c.conceito)}" target="_blank" rel="noopener" style="color:var(--ink);font-weight:700">ver estudos</a></p>`:""}</div>`)));
+    view.append(s);
+  }
+  if(D.versoes&&D.versoes.length){
+    const s=$(`<section class="sec"><div class="shead"><h2>Caminhos possíveis</h2></div><div class="grid auto"></div></section>`);
+    D.versoes.forEach(v=>s.querySelector(".grid").append($(`<div class="card vc ${v.recomendada?"rec":""}">${v.recomendada?`<span class="tagrec">RECOMENDADO</span>`:""}<h3>${esc(v.nome)}</h3><p style="margin:6px 0 0">${esc(v.descricao)}</p>${v.vies?`<div class="pills"><span class="pill">${esc(v.vies)}</span></div>`:""}</div>`)));
+    view.append(s);
+  }
+  const row2=$(`<div class="grid sec auto"></div>`);
+  if(D.vieses&&D.vieses.length){const c=$(`<div class="card"><h2>Vieses escolhidos</h2></div>`);D.vieses.forEach(v=>c.append($(`<div class="lrow" style="margin:12px 0 0;align-items:flex-start"><div><b>${esc(v.nome)}</b><div class="note">${esc(v.uso)}</div></div>${evc(v.evidencia)}</div>`)));row2.append(c);}
+  if(D.testar&&D.testar.length){const c=$(`<div class="card"><h2>Para testar</h2></div>`);D.testar.forEach(t=>c.append($(`<div style="margin-top:12px"><b>${esc(t.hipotese)}</b><div class="note">${esc(t.como)}</div></div>`)));row2.append(c);}
+  if(row2.children.length) view.append(row2);
+  {
+    const R=D.resultados||[], TL=testesDaAnalise(D.id);
+    const s=$(`<section class="sec"><div class="shead"><h2>Resultado observado</h2>${lvl("res")}<p>O que os números reais mostraram depois do teste.</p></div><div class="card"></div></section>`);
+    const c=s.querySelector(".card");
+    TL.forEach(tt=>{const s=estat(tt); c.append($(`<div class="lrow" style="margin:0 0 12px;align-items:flex-start"><div style="min-width:0"><b>${esc(tt.titulo||"Teste")}</b> ${statusPill(tt.status)}<div class="note">${esc(tt.metrica||"")}${tt.periodo?" · "+esc(tt.periodo):""}</div>${s.ok?`<div style="margin-top:4px">A ${pct(s.pA)} · B ${pct(s.pB)} — <b>${esc(s.veredito)}</b></div>`:""}</div><a class="btn ghost" href="#testes" data-t="${esc(tt.id)}" style="text-decoration:none">Abrir</a></div>`));});
+    c.querySelectorAll("[data-t]").forEach(a=>a.onclick=()=>{testeAberto=a.dataset.t;testeRascunho=null;});
+    if(!R.length&&!TL.length) c.append($(`<p style="margin:0">Ainda não há teste registrado para esta análise. As conclusões acima são previsão e hipótese.</p><p class="note" style="margin:6px 0 0">Depois de rodar a peça, mande os números ao Claude (cliques, conversão, vendas, período, investimento) e eles entram aqui.</p>`));
+    else R.forEach(r=>c.append($(`<div class="lrow" style="margin:0 0 10px;align-items:flex-start"><div><b>${esc(r.metrica)}</b><div class="note">${esc(r.periodo||"")}${r.amostra?" · amostra "+esc(r.amostra):""}</div></div><div style="text-align:right"><span class="score">${esc(r.valor)}</span>${r.conclusao?`<div class="note">${esc(r.conclusao)}</div>`:""}</div></div>`)));
+    view.append(s);
+  }
+  view.append($(`<section class="sec"><div class="grid auto">
+    <div class="card">${evc("ROBUSTO")}<p style="margin:8px 0 0" class="note">Comprovado: replica em meta-análise ou teste de campo.</p></div>
+    <div class="card">${evc("CONTEXTUAL")}<p style="margin:8px 0 0" class="note">Depende do público, da categoria ou da cultura.</p></div>
+    <div class="card">${evc("A TESTAR")}<p style="margin:8px 0 0" class="note">Hipótese plausível. Vale como teste, não como certeza.</p></div></div></section>`));
+}
+
+/* =========================================================
+   SIMULADOR (laboratório de hipóteses) — sem placar numérico
+   ========================================================= */
+const BARR = {
+  atencao:{n:"Não percebe a peça"}, compreensao:{n:"Não entende rápido"}, relevancia:{n:"Não acha que é para ele"},
+  confianca:{n:"Não confia"}, esforco:{n:"Dá trabalho agir"}, valor:{n:"Não vê valor no preço"},
+  urgencia:{n:"Deixa para depois"}, memoria:{n:"Não lembra na hora da compra"}
+};
+/* b = barreiras que a carta ataca (ou piora, se armadilha); f = estudo; q = busca; lim = limite */
+const EXTRA = {
+  rosto:{b:["atencao","confianca"],f:"Cerf, Frady & Koch (2009): rostos e texto atraem o olhar independente da tarefa",q:"Cerf Frady Koch 2009 faces and text attract gaze independent of the task",lim:"Se o rosto for o maior elemento, ele rouba atenção da mensagem."},
+  olhar_cta:{b:["esforco","atencao"],f:"Friesen & Kingstone (1998): a direção do olhar de outra pessoa orienta a nossa atenção",q:"Friesen Kingstone 1998 eyes have it reflexive orienting gaze",lim:"Mede para onde o olho vai, não se a pessoa decide clicar."},
+  contraste:{b:["atencao","compreensao"],f:"Itti & Koch (2001): modelos de saliência visual por contraste",q:"Itti Koch 2001 computational modelling of visual attention",lim:"Saliência prevê o primeiro olhar; contexto e significado também pesam."},
+  surpresa:{b:["atencao","memoria"],f:"Hunt (1995): efeito de isolamento (von Restorff) na memória",q:"Hunt 1995 von Restorff isolation effect memory",lim:"Destacar tudo é destacar nada; surpresa demais confunde."},
+  historia:{b:["relevancia","memoria","confianca"],f:"Green & Brock (2000): transporte narrativo e persuasão",q:"Green Brock 2000 role of transportation in persuasiveness of public narratives",lim:"Precisa ser caso real e autorizado; história inventada é publicidade enganosa."},
+  estado_final:{b:["relevancia","valor"],f:"Berridge & Robinson: querer (antecipação) é diferente de gostar",q:"Berridge Robinson wanting liking incentive salience",lim:"Promessa de resultado em saúde e beleza tem restrição (Anvisa/CONAR)."},
+  som:{b:["memoria"],f:"North, Hargreaves & McKendrick (1999): música no ponto de venda e escolha de vinho",q:"North Hargreaves McKendrick 1999 influence of in-store music on wine selections",lim:"Efeitos variam muito com o contexto; replicação irregular."},
+  sensorial:{b:["confianca","memoria"],f:"Roschk, Loureiro & Breitsohl (2017): meta-análise de música, aroma e cor no varejo",q:"Roschk Loureiro Breitsohl 2017 calibrating 30 years of experimental research meta-analysis atmospheric",lim:"Efeitos pequenos a médios; congruência importa mais que intensidade."},
+  prova_social:{b:["confianca","relevancia"],f:"Goldstein, Cialdini & Griskevicius (2008): normas sociais em hotéis",q:"Goldstein Cialdini Griskevicius 2008 room with a viewpoint social norms",lim:"Só funciona com número real e grupo parecido com o público."},
+  garantia:{b:["confianca","valor"],f:"Remoção de risco percebido na compra (literatura de garantias e risco percebido)",q:"money-back guarantee perceived risk purchase intention meta-analysis",lim:"A garantia vincula (CDC art. 35): só prometa o que cumpre."},
+  halo:{b:["confianca"],f:"Nisbett & Wilson (1977): efeito halo",q:"Nisbett Wilson 1977 halo effect",lim:"Visual caprichado sem entrega gera frustração depois."},
+  autoridade:{b:["confianca"],f:"Cialdini: autoridade como atalho de decisão",q:"Cialdini authority principle persuasion",lim:"Selo que o público não reconhece é ruído."},
+  cta_unico:{b:["esforco"],f:"Hick (1952): o tempo de decisão cresce com o número de opções",q:"Hick 1952 on the rate of gain of information",lim:"A lei mede tempo de reação; a ponte para conversão é inferência."},
+  ancora:{b:["valor"],f:"Tversky & Kahneman (1974): ancoragem",q:"Tversky Kahneman 1974 judgment under uncertainty heuristics and biases",lim:"Âncora fictícia é ilegal (CDC art. 37)."},
+  perda:{b:["urgencia"],f:"Kahneman & Tversky (1979); Gal & Rucker (2018) sobre os limites da aversão à perda",q:"Gal Rucker 2018 the loss of loss aversion",lim:"Forte em escolha com risco, fraca fora dela. Sempre mostre a saída."},
+  escassez_real:{b:["urgencia"],f:"Barton, Zlatevska & Oppewal (2022): meta-análise de escassez",q:"Barton Zlatevska Oppewal 2022 scarcity tactics in marketing meta-analysis",lim:"Meta-análises divergem; urgência genérica tende a não mover."},
+  default:{b:["esforco"],f:"Jachimowicz et al. (2019): meta-análise de defaults",q:"Jachimowicz Duncan Weber Johnson 2019 when and why defaults influence decisions",lim:"Default contra o cliente (upsell pré-marcado) é dark pattern."},
+  marca_repetida:{b:["memoria","atencao"],f:"Romaniuk: ativos distintivos de marca (Ehrenberg-Bass)",q:"Romaniuk building distinctive brand assets",lim:"Leva tempo e consistência; trocar o ativo zera o investimento."},
+  final_forte:{b:["memoria"],f:"Alaybek et al. (2022): meta-análise da regra pico-fim",q:"Alaybek 2022 meta-analysis peak-end rule duration neglect",lim:"A média da experiência também pesa; o meio não pode ser ruim."},
+  elementos_demais:{b:["atencao","compreensao"],f:"Cowan (2001): limite da memória de trabalho (~4 itens)",q:"Cowan 2001 magical number 4 short-term memory",lim:"Retire antes de acrescentar."},
+  jargao:{b:["compreensao","confianca"],f:"Reber, Winkielman & Schwarz (1998): fluência de processamento",q:"Reber Winkielman Schwarz 1998 effects of perceptual fluency on affective judgments",lim:"Palavra técnica pode funcionar com especialistas; teste com o público real."},
+  superlativo:{b:["confianca"],f:"Ceticismo do consumidor diante de alegações sem prova",q:"consumer skepticism toward advertising claims",lim:"Também é risco legal se não houver comprovação."},
+  escassez_falsa:{b:["confianca"],f:"CDC art. 37 (publicidade enganosa)",q:"escassez artificial publicidade enganosa CDC",lim:"Não existe versão segura: troque por prazo ou vaga real."},
+  dois_ctas:{b:["esforco"],f:"Hick (1952); custo de comparar opções sem critério",q:"Hick 1952 on the rate of gain of information",lim:"CTA secundário pode existir, com peso visual menor."}
+};
+const scholar = q => "https://scholar.google.com/scholar?q="+encodeURIComponent(q);
+const LVL = {prev:["Previsão visual","modelo de saliência, não medição"],hip:["Hipótese comportamental","baseada em evidência, não medição"],res:["Resultado observado","dado real de campanha"]};
+const lvl = k => `<span class="lvl lvl-${k}" title="${LVL[k][1]}">${LVL[k][0]}</span>`;
+
+function calcular(){
+  const diff={}; LEIT.forEach(l=>diff[l.k]=0); const alerts=[];
+  const soma=(set,s)=>set.forEach(id=>Object.entries(CMAP[id].e).forEach(([k,v])=>diff[k]+=s*v));
+  soma(ativas,1); soma(iniciais,-1);
+  const comb=g=>COMBOS.filter(c=>c.all.every(i=>g.has(i)));
+  comb(ativas).forEach(c=>{Object.entries(c.e).forEach(([k,v])=>diff[k]+=v);alerts.push({t:"ok",m:c.t.replace("Combo:","Reforço:")});});
+  comb(iniciais).forEach(c=>Object.entries(c.e).forEach(([k,v])=>diff[k]-=v));
+  const pos=[...ativas].filter(i=>!CMAP[i].trap).length;
+  if(pos>7){ alerts.push({t:"warn",m:`Mecanismos demais (${pos}): cada um disputa atenção com os outros. Escolha os que atacam as barreiras mais importantes.`}); diff.carga-=1; }
+  if(ativas.has("perda")&&!ativas.has("garantia")&&!ativas.has("cta_unico")) alerts.push({t:"warn",m:"Conflito: mostrar a perda sem garantia ou ação clara tende a gerar ansiedade, não ação. Ligue \"Garantia\" ou \"Um botão claro\"."});
+  if(ativas.has("perda")&&ativas.has("historia")) alerts.push({t:"warn",m:"Atenção à ordem: medo e pertencimento no mesmo bloco se anulam. Conte a história primeiro, a perda depois."});
+  if(ativas.has("escassez_falsa")) alerts.push({t:"bad",m:"Risco legal: escassez falsa é propaganda enganosa (CDC art. 37). Troque por \"Prazo ou vaga real\"."});
+  return {diff,alerts};
+}
+function barreirasDaAnalise(){
+  const b=(atual&&atual.barreiras)||[];
+  if(b.length) return b.filter(x=>BARR[x.id]).map(x=>({id:x.id,nome:x.nome||BARR[x.id].n,peso:x.peso||"médio"}));
+  return Object.keys(BARR).map(id=>({id,nome:BARR[id].n,peso:""}));
+}
+function statusBarreiras(){
+  return barreirasDaAnalise().map(b=>{
+    const ajuda=[...ativas].filter(i=>!CMAP[i].trap&&(EXTRA[i]||{}).b&&EXTRA[i].b.includes(b.id));
+    const piora=[...ativas].filter(i=>CMAP[i].trap&&(EXTRA[i]||{}).b&&EXTRA[i].b.includes(b.id));
+    return {...b,ajuda,piora,st:piora.length?"falha":ajuda.length?"ok":"na"};
+  });
+}
+function regioesAtivas(){
+  const m={};
+  ativas.forEach(id=>Object.entries(CMAP[id].r).forEach(([r,v])=>m[r]=Math.max(m[r]||0,v)));
+  if(!ativas.size&&atual&&atual.cerebro) atual.cerebro.forEach(r=>{if(ATLAS[r.id]) m[r.id]=Math.max(m[r.id]||0,Number(r.intensidade)||.5);});
+  return m;
+}
+function efeitoTexto(c){
+  const up=Object.entries(c.e).filter(([,v])=>v>0).map(([k])=>LEIT.find(x=>x.k===k).n);
+  const dn=Object.entries(c.e).filter(([,v])=>v<0).map(([k])=>LEIT.find(x=>x.k===k).n);
+  return [up.length?"Fortalece: "+up.join(", "):"", dn.length?"Enfraquece: "+dn.join(", "):""].filter(Boolean).join(" · ");
+}
+
+let simEls=null;
+function renderSim(){
+  view.innerHTML="";
+  view.append($(`<header><h1>Laboratório de hipóteses</h1><p class="lead">${atual?`Trabalhando com <b>${esc(atual.titulo)}</b>. Ligue e desligue mecanismos e veja quais barreiras do público eles atacam, onde reforçam ou conflitam. Cartas "na peça" já existem nela; "sugerida" é o que eu recomendo testar.`:"Sem análise carregada: monte uma estratégia do zero e veja quais barreiras cada mecanismo ataca."}</p>
+    <div class="chips">${lvl("hip")}<span class="note" style="align-self:center">Nada aqui é medição do seu público. É o que a ciência sugere; o teste real decide.</span></div></header>`));
+  if(atual&&atual.objetivo_comportamental) view.append($(`<div class="card sec" style="margin-top:16px"><span class="lab">Comportamento que queremos mudar</span><p class="big-t" style="margin:4px 0 0">${esc(atual.objetivo_comportamental)}</p></div>`));
+  const wrap=$(`<div class="sim"></div>`);
+  const left=$(`<div><div class="stage" id="stage"><span class="hint">Regiões associadas aos processos dos mecanismos ligados · arraste para girar</span>
+      <div class="vis"><button type="button" id="b3dGira">Parar</button><button type="button" id="b3dVidro">Sólido</button></div></div>
+    <div class="card meters"><div class="lrow" style="margin:0"><h2>Barreiras do público</h2><span class="score" id="barSum"></span></div>
+      <p class="note" style="margin:4px 0 10px">O que impede a pessoa de agir hoje, e qual mecanismo ataca cada barreira.</p>
+      <div id="barList"></div>
+      <div class="btnrow"><button class="btn ghost" type="button" id="bReset">Voltar à peça original</button><button class="btn ghost" type="button" id="bLimpar">Desligar todos</button><a class="btn" href="#creative" style="text-decoration:none">Virar briefing →</a></div>
+    </div></div>`);
+  const right=$(`<div><div class="card explain" style="margin-top:0"><span class="lab">O que está acontecendo</span><p class="big-t" id="explT"></p><div id="explMore"></div><div class="alerts" id="alerts"></div></div>
+    <div class="card" style="margin-top:14px"><div class="lrow" style="margin:0"><h2>Efeito nas leituras</h2>${lvl("hip")}</div><p class="note" style="margin:4px 0 8px">Comparado com a peça original. Direção esperada, sem número.</p><div id="leitList"></div></div>
+    <div class="decks" id="decks" style="margin-top:16px"></div></div>`);
+  wrap.append(left,right); view.append(wrap);
+  const decks=right.querySelector("#decks"), sug=new Set(((atual&&atual.simulador)||{}).sugeridas||[]);
+  ["Atenção","Emoção","Confiança","Decisão","Memória","Armadilhas"].forEach(d=>{
+    const cs=CARTAS.filter(c=>c.d===d); if(!cs.length) return;
+    const dk=$(`<div class="deck"><h3>${d==="Armadilhas"?"Armadilhas (o que atrapalha)":d}</h3><div class="cards"></div></div>`);
+    cs.forEach(c=>{const k=evk(c.ev),col=k==="ROBUSTO"?"var(--gold)":k==="CONTEXTUAL"?"var(--silver)":"var(--purple)";
+      const b=$(`<button type="button" class="cc ${c.trap?"trap":""}" data-id="${c.id}" aria-pressed="false">
+        ${iniciais.has(c.id)?`<span class="orig">na peça</span>`:""}${sug.has(c.id)?`<span class="sug">sugerida</span>`:""}
+        <span class="cn">${esc(c.n)}</span>
+        <span class="row"><span class="tiny">${esc(efeitoTexto(c))}</span><span class="gem" style="background:${col}" title="${k==="TESTAR"?"A TESTAR":k}"></span></span></button>`);
+      b.addEventListener("click",()=>{ ativas.has(c.id)?ativas.delete(c.id):ativas.add(c.id); ultimaCarta=c.id; atualizarSim(); });
+      dk.querySelector(".cards").append(b);});
+    decks.append(dk);
+  });
+  decks.append($(`<p class="note">Cor da bolinha = força da evidência: <b style="color:var(--gold)">ouro</b> comprovado · <b style="color:var(--silver)">prata</b> depende do público · <b style="color:var(--purple)">roxo</b> aposta para testar.</p>`));
+  left.querySelector("#bReset").onclick=()=>{ativas=new Set(iniciais);ultimaCarta=null;atualizarSim();};
+  left.querySelector("#bLimpar").onclick=()=>{ativas=new Set();ultimaCarta=null;atualizarSim();};
+  left.querySelector("#b3dGira").onclick=e=>{const on=brain.toggleRotate();e.target.textContent=on?"Parar":"Girar";};
+  left.querySelector("#b3dVidro").onclick=e=>{const solid=brain.toggleGlass();e.target.textContent=solid?"Transparente":"Sólido";};
+  simEls={left,right};
+  brain.setAtlas(false,null);
+  brain.mount(left.querySelector("#stage"));
+  atualizarSim();
+}
+function atualizarSim(){
+  if(!simEls) return;
+  const {diff,alerts}=calcular();
+  document.querySelectorAll(".cc").forEach(b=>b.setAttribute("aria-pressed",ativas.has(b.dataset.id)?"true":"false"));
+  // barreiras
+  const bs=statusBarreiras(), ico={ok:"✓",falha:"✕",na:"–"};
+  const com=bs.filter(b=>b.st==="ok").length;
+  document.getElementById("barSum").textContent=`${com} de ${bs.length}`;
+  const bl=document.getElementById("barList"); bl.innerHTML="";
+  bs.forEach(b=>bl.append($(`<div class="ci s-${b.st==="ok"?"ok":b.st==="falha"?"falha":"na"}" style="margin-bottom:6px"><span class="ic i-${b.st==="ok"?"ok":b.st==="falha"?"falha":"na"}">${ico[b.st]}</span>
+    <div style="min-width:0"><b>${esc(b.nome)}${b.peso?` <span class="pill" style="margin-left:4px">peso ${esc(b.peso)}</span>`:""}</b>
+    <span class="n">${b.piora.length?(b.ajuda.length?"Atacada por: "+esc(b.ajuda.map(i=>CMAP[i].n).join(", "))+", mas piorada por: ":"Piorada por: ")+esc(b.piora.map(i=>CMAP[i].n).join(", ")):b.ajuda.length?"Atacada por: "+esc(b.ajuda.map(i=>CMAP[i].n).join(", ")):"Nenhum mecanismo ligado para esta barreira."}</span></div></div>`)));
+  // leituras qualitativas
+  const ll=document.getElementById("leitList"); ll.innerHTML="";
+  const base={}; (atual&&atual.leituras||[]).forEach(l=>{const k=LKEY[NORM(l.nome)];if(k)base[k]=l.status||statusDe(Number(l.nota)||0);});
+  LEIT.forEach(l=>{const d=diff[l.k], w=d>0?"Fortalecida":d<0?"Enfraquecida":"Igual à peça", cls=d>0?"up":d<0?"down":"";
+    ll.append($(`<div class="meter" style="grid-template-columns:110px 1fr auto"><b>${l.n}</b><span class="note">${base[l.k]?`peça original: <span class="dot" style="background:${stc[base[l.k]]};margin:0 4px 0 2px"></span>${base[l.k]}`:""}</span><span class="${cls}" style="font-weight:700">${d>0?"↑ ":d<0?"↓ ":""}${w}</span></div>`));});
+  // explicação
+  const c=ultimaCarta&&CMAP[ultimaCarta], x=c&&EXTRA[c.id];
+  document.getElementById("explT").textContent = c ? (ativas.has(c.id)?"Ligou: ":"Desligou: ")+c.n+". "+c.teen : (ativas.size?"Toque num mecanismo para ver o que ele faz, o estudo por trás e o limite.":"Nada ligado. Ligue mecanismos para montar a estratégia.");
+  const more=document.getElementById("explMore"); more.innerHTML="";
+  if(c&&x){
+    more.append($(`<div class="alert" style="background:var(--soft);margin-top:10px"><b>Ataca:</b> ${esc((x.b||[]).map(i=>BARR[i].n).join(", "))} ${evc(c.ev)}<br>
+      <b>Regiões associadas (hipótese):</b> ${esc(Object.keys(c.r).map(r=>ATLAS[r].nome).join(", "))}<br>
+      <b>Na pesquisa:</b> ${esc(x.f)} — <a href="${scholar(x.q)}" target="_blank" rel="noopener">ver estudos</a><br>
+      <b>Limite:</b> ${esc(x.lim)}</div>`));
+  }
+  const al=document.getElementById("alerts"); al.innerHTML="";
+  alerts.forEach(a=>al.append($(`<div class="alert a-${a.t}">${esc(a.m)}</div>`)));
+  brain.setRegions(regioesAtivas());
+}
+
+/* =========================================================
+   COMPARADOR A × B
+   ========================================================= */
+let cmpA=null, cmpB=null;
+function renderComparar(){
+  view.innerHTML="";
+  view.append($(`<header><h1>Comparar A × B</h1><p class="lead">Duas peças ou ideias lado a lado: o que cada uma faz melhor e onde elas diferem.</p>
+    <div class="chips">${lvl("prev")}${lvl("hip")}<span class="note" style="align-self:center">Diferenças previstas. Qual vence de verdade, só um teste com o público responde.</span></div></header>`));
+  if(analises.length<2){ view.append($(`<div class="empty sec"><h2>Precisa de duas análises</h2><p class="lead" style="margin:0">Peça ao Claude para analisar duas versões (ou uma peça e a versão corrigida). Elas aparecem aqui para comparar.</p></div>`)); return; }
+  if(!cmpA||!analises.find(a=>a.id===cmpA)) cmpA=analises[1].id;
+  if(!cmpB||!analises.find(a=>a.id===cmpB)||cmpB===cmpA) cmpB=analises.find(a=>a.id!==cmpA).id;
+  const opts=sel=>analises.map(a=>`<option value="${esc(a.id)}" ${a.id===sel?"selected":""}>${esc(a.titulo)}</option>`).join("");
+  const pick=$(`<div class="grid sec" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))">
+    <div class="card"><label class="lab" for="cmpA">Versão A</label><select id="cmpA" style="width:100%;max-width:none;margin-top:6px">${opts(cmpA)}</select></div>
+    <div class="card"><label class="lab" for="cmpB">Versão B</label><select id="cmpB" style="width:100%;max-width:none;margin-top:6px">${opts(cmpB)}</select></div></div>`);
+  view.append(pick);
+  pick.querySelector("#cmpA").onchange=e=>{cmpA=e.target.value;renderComparar();};
+  pick.querySelector("#cmpB").onchange=e=>{cmpB=e.target.value;renderComparar();};
+  const A=analises.find(a=>a.id===cmpA), B=analises.find(a=>a.id===cmpB);
+  const lk=a=>{const m={};(a.leituras||[]).forEach(l=>{const k=LKEY[NORM(l.nome)];if(k)m[k]=Number(l.nota)||0;});return m;};
+  const la=lk(A), lb=lk(B);
+  // peças
+  const col=a=>`<div class="card"><span class="lab">${a===A?"A":"B"}</span><h3 style="margin:4px 0 10px">${esc(a.titulo)}</h3>
+    ${a.imagens&&a.imagens.peca?`<img alt="" src="${esc(a.imagens.peca)}" style="width:100%;max-height:260px;object-fit:contain;border-radius:10px;background:var(--soft)">`:`<p class="note">${esc((a.intencao&&a.intencao.ideia)||a.resumo||"Sem imagem: análise de ideia.")}</p>`}
+    ${a.imagens&&a.imagens.atencao?`<figure style="padding:0;margin-top:10px;background:none"><img alt="Mapa de atenção" src="${esc(a.imagens.atencao)}"><figcaption>${lvl("prev")} mapa de atenção previsto</figcaption></figure>`:""}
+    <p style="margin:10px 0 0"><b>Avaliação do analista:</b> ${esc(a.nota)}/5 ${a.emocao?` · emoção: ${esc(a.emocao)}`:""}</p></div>`;
+  view.append($(`<div class="grid sec" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))">${col(A)}${col(B)}</div>`));
+  // leituras lado a lado
+  const rows=LEIT.map(l=>{const a=la[l.k],b=lb[l.k];if(a==null&&b==null)return "";
+    const lead=a==null||b==null?"":a>b?"A":b>a?"B":"=";
+    return `<div class="meter" style="grid-template-columns:96px 1fr 1fr 48px"><b>${l.n}</b>
+      <div class="bar"><i style="width:${(a||0)*10}%;background:${stc[statusDe(a||0)]}"></i></div>
+      <div class="bar"><i style="width:${(b||0)*10}%;background:${stc[statusDe(b||0)]}"></i></div>
+      <span style="font-weight:800;text-align:center">${lead}</span></div>`;}).join("");
+  view.append($(`<section class="sec card"><div class="lrow" style="margin:0"><h2>Seis leituras</h2>${lvl("hip")}</div>
+    <div class="meter" style="grid-template-columns:96px 1fr 1fr 48px"><span></span><span class="lab">A</span><span class="lab">B</span><span class="lab" style="text-align:center">Lidera</span></div>${rows}</section>`));
+  // diferenças principais
+  const difs=LEIT.filter(l=>la[l.k]!=null&&lb[l.k]!=null&&Math.abs(la[l.k]-lb[l.k])>=2).map(l=>{const w=la[l.k]>lb[l.k]?"A":"B";
+    const src=w==="A"?A:B, achado=((src.leituras||[]).find(x=>LKEY[NORM(x.nome)]===l.k)||{}).achado||"";return `<li><b>${l.n}:</b> ${w} está mais forte. ${esc(achado)}</li>`;});
+  const ba=new Set(((A.simulador||{}).ativas)||[]), bb=new Set(((B.simulador||{}).ativas)||[]);
+  const soA=[...ba].filter(i=>!bb.has(i)&&CMAP[i]).map(i=>CMAP[i].n), soB=[...bb].filter(i=>!ba.has(i)&&CMAP[i]).map(i=>CMAP[i].n);
+  view.append($(`<section class="sec grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))">
+    <div class="card"><h2>Diferenças principais</h2>${difs.length?`<ul style="margin:10px 0 0;padding-left:18px">${difs.join("")}</ul>`:`<p class="note">As leituras estão próximas (menos de 2 pontos de diferença). A escolha depende do objetivo e de um teste.</p>`}</div>
+    <div class="card"><h2>Mecanismos diferentes</h2><p style="margin:10px 0 0"><b>Só em A:</b> ${esc(soA.join(", ")||"nenhum")}</p><p style="margin:6px 0 0"><b>Só em B:</b> ${esc(soB.join(", ")||"nenhum")}</p></div></section>`));
+  setTimeout(()=>{const b=document.getElementById("bRegTeste"); if(b) b.onclick=()=>{prefillAB=[cmpA,cmpB];testeAberto="novo";testeRascunho=null;};},0);
+  view.append($(`<section class="sec card">${lvl("res")}<h2 style="margin-top:8px">Qual vence de verdade?</h2><p class="lead">Registre o teste das duas versões (público, métrica, números) e o Studio diz se a diferença é real ou ruído.</p>
+    <div class="btnrow"><a class="btn" href="#testes" id="bRegTeste" style="text-decoration:none">Registrar teste com estas duas</a><a class="btn ghost" href="#pergunte" style="text-decoration:none">Montar plano de teste com o Claude</a></div></section>`));
+}
+
+/* ---------- cérebro 3D ---------- */
+const brain=(()=>{
+  let ok=typeof THREE!=="undefined", renderer,scene,camera,controls,hemis=[],sprites=[],cores=[],lbls=[],host,raf=null,vidro,stage,regAtual={},atlasOn=false,pickCb=null,hl=null,hits=[];
+  const base=ok?new THREE.Color(0xd8cfc8):null;
+  function gyri(x,y,z){const a=Math.sin(14*x+5*z+Math.sin(6*y))*Math.cos(12*y-3*x+Math.sin(5*z));const b=Math.sin(21*z+7*y+Math.cos(9*x))*Math.sin(17*x+4*y);return Math.tanh(2.2*(0.6*a+0.4*b));}
+  function hemi(l){const g=new THREE.SphereGeometry(1,120,90),p=g.attributes.position,v=new THREE.Vector3();
+    for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);let x=v.x*0.4,y=v.y*0.56,z=v.z;if(y<0)y*=0.72;const tz=Math.exp(-((z-0.05)**2)/0.18);
+      if(y<0)y-=0.16*tz*Math.max(0,-v.y);x+=0.09*tz*Math.max(0,-v.y);if(v.x<0)x*=0.82;const fr=Math.max(0,z-0.4);y-=0.12*fr*fr;
+      const s=1+0.05*gyri(v.x*1.2,v.y*1.2,v.z*1.2);p.setXYZ(i,(x*s+0.4)*l,y*s+0.05,z*s);}
+    g.computeVertexNormals();g.setAttribute("color",new THREE.BufferAttribute(new Float32Array(p.count*3),3));return g;}
+  function glow(){const c=document.createElement("canvas");c.width=c.height=128;const x=c.getContext("2d"),g=x.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,"rgba(255,255,255,1)");g.addColorStop(.3,"rgba(255,255,255,.55)");g.addColorStop(1,"rgba(255,255,255,0)");x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);}
+  function calor(t){const a=new THREE.Color(0xffcf1a),b=new THREE.Color(0xff7a1a),c=new THREE.Color(0xff3b2f);return t<.5?a.clone().lerp(b,t*2):b.clone().lerp(c,(t-.5)*2);}
+  function init(){
+    scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(36,1,.1,50);camera.position.set(-3.7,0.95,1.35);
+    renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=2.4;controls.maxDistance=8;controls.autoRotate=true;controls.autoRotateSpeed=1.1;controls.target.set(0,-.05,-.05);
+    scene.add(new THREE.HemisphereLight(0xffffff,0x223344,.85));const d1=new THREE.DirectionalLight(0xffffff,.75);d1.position.set(2,3,2);scene.add(d1);
+    const grp=new THREE.Group();scene.add(grp);
+    vidro=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.62,transparent:true,opacity:.5,depthWrite:false,side:THREE.DoubleSide});
+    hemis=[hemi(-1),hemi(1)].map(g=>{const m=new THREE.Mesh(g,vidro);grp.add(m);return m;});
+    const cg=new THREE.SphereGeometry(1,60,40),cp=cg.attributes.position,cv=new THREE.Vector3();
+    for(let i=0;i<cp.count;i++){cv.fromBufferAttribute(cp,i);const r=1+.04*Math.sin(40*cv.y);cp.setXYZ(i,cv.x*.44*r,cv.y*.19*r-.4,cv.z*.26*r-.7);}cg.computeVertexNormals();
+    const gm=new THREE.MeshStandardMaterial({color:0x8d8f97,roughness:.7,transparent:true,opacity:.35,depthWrite:false});grp.add(new THREE.Mesh(cg,gm));
+    const tr=new THREE.Mesh(new THREE.CylinderGeometry(.11,.08,.6,20),gm);tr.position.set(0,-.62,-.18);tr.rotation.x=.25;grp.add(tr);
+    const gt=glow();
+    Object.entries(ATLAS).forEach(([id,a])=>{(a.bi?[-1,1]:[1]).forEach(s=>{const p=new THREE.Vector3(a.p[0]*s,a.p[1],a.p[2]);
+      const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:gt,color:0xffcf1a,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));sp.position.copy(p);sp.visible=false;sp.userData={id,k:0};grp.add(sp);sprites.push(sp);
+      const co=new THREE.Mesh(new THREE.SphereGeometry(a.prof?.05:.035,16,12),new THREE.MeshBasicMaterial({color:0xffcf1a}));co.position.copy(p);co.visible=false;co.userData={id};grp.add(co);cores.push(co);
+      const hs=new THREE.Mesh(new THREE.SphereGeometry(.12,10,8),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hs.position.copy(p);hs.userData={id};grp.add(hs);hits.push(hs);});});
+  }
+  function bindPick(){
+    let down=null;
+    renderer.domElement.addEventListener("pointerdown",e=>{down=[e.clientX,e.clientY];});
+    renderer.domElement.addEventListener("pointerup",e=>{
+      if(!atlasOn||!pickCb||!down) return; if(Math.hypot(e.clientX-down[0],e.clientY-down[1])>6) return;
+      const r=renderer.domElement.getBoundingClientRect(), m=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
+      const rc=new THREE.Raycaster(); rc.setFromCamera(m,camera); const h=rc.intersectObjects(hits); if(h.length) pickCb(h[0].object.userData.id);
+    });
+  }
+  function pinta(){
+    hemis.forEach(m=>{const p=m.geometry.attributes.position,c=m.geometry.attributes.color,v=new THREE.Vector3();
+      const sup=Object.entries(regAtual).filter(([id])=>!ATLAS[id].prof).map(([id,t])=>({t,col:calor(t),pts:(ATLAS[id].bi?[-1,1]:[1]).map(s=>new THREE.Vector3(ATLAS[id].p[0]*s,ATLAS[id].p[1],ATLAS[id].p[2]))}));
+      for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);const col=base.clone();
+        sup.forEach(r=>r.pts.forEach(q=>{const d=v.distanceTo(q),w=Math.exp(-(d*d)/.05)*r.t;if(w>.02)col.lerp(r.col,Math.min(1,w*1.3));}));c.setXYZ(i,col.r,col.g,col.b);}
+      c.needsUpdate=true;});
+    sprites.forEach(s=>{const t=regAtual[s.userData.id]||0;s.visible=t>0;s.userData.k=(ATLAS[s.userData.id].prof?.44:.32)*(.6+.6*t);s.material.color=calor(t);});
+    cores.forEach(c=>{const id=c.userData.id,t=regAtual[id]||0;c.visible=t>0||atlasOn;c.material.color=t>0?calor(t):new THREE.Color(0x9a9da6);const k=(atlasOn&&id===hl)?2.2:1;c.scale.set(k,k,k);});
+    lbls.forEach(l=>l.el.remove());lbls=[];
+    [...new Set([...Object.entries(regAtual).sort((a,b)=>b[1]-a[1]).slice(0,6).map(x=>x[0]),...(atlasOn&&hl?[hl]:[])])].forEach(id=>{const el=document.createElement("div");el.className="lbl3d";el.textContent=ATLAS[id].nome.split(" (")[0];stage.append(el);lbls.push({el,id});});
+  }
+  function loop(t){
+    raf=requestAnimationFrame(loop);controls.update();
+    sprites.forEach(s=>{if(!s.visible)return;const k=s.userData.k*(1+.12*Math.sin(t/380+s.userData.k*9));s.scale.set(k,k,k);});
+    const dir=new THREE.Vector3();camera.getWorldDirection(dir);
+    lbls.forEach(({el,id})=>{const a=ATLAS[id];let best=null,bd=-9;(a.bi?[-1,1]:[1]).forEach(s=>{const p=new THREE.Vector3(a.p[0]*s,a.p[1],a.p[2]);const d=-p.clone().normalize().dot(dir);if(d>bd){bd=d;best=p;}});
+      const q=best.clone().project(camera);el.style.left=((q.x+1)/2*stage.clientWidth)+"px";el.style.top=((1-q.y)/2*stage.clientHeight)+"px";el.style.opacity=(bd>-.25||a.prof)?1:.4;});
+    renderer.render(scene,camera);
+  }
+  function resize(){if(!stage)return;const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
+  addEventListener("resize",()=>{if(renderer)resize();});
+  return {
+    mount(el){stage=el;if(!ok){el.append($(`<p class="hint" style="top:40px">O cérebro 3D não carregou nesta visualização. As notas e cartas continuam funcionando.</p>`));return;}
+      if(!renderer){init();bindPick();}el.prepend(renderer.domElement);resize();pinta();if(!raf)raf=requestAnimationFrame(loop);},
+    setRegions(m){regAtual=m||{};if(ok&&renderer&&stage)pinta();},
+    setAtlas(on,cb){atlasOn=!!on;pickCb=cb||null;if(!on)hl=null;if(ok&&renderer&&stage)pinta();},
+    highlight(id){hl=id;if(ok&&renderer&&stage)pinta();},
+    pause(){if(raf){cancelAnimationFrame(raf);raf=null;}lbls.forEach(l=>l.el.remove());lbls=[];},
+    toggleRotate(){if(!controls)return false;controls.autoRotate=!controls.autoRotate;return controls.autoRotate;},
+    toggleGlass(){if(!vidro)return false;const solid=vidro.opacity<.9;vidro.opacity=solid?1:.5;vidro.depthWrite=solid;vidro.needsUpdate=true;return solid;}
+  };
+})();
+
+/* =========================================================
+   TESTES (Validation Lab) — resultado observado
+   ========================================================= */
+let DB=null, testes=[], testeAberto=null, testeRascunho=null, prefillAB=null;
+
+/* estatística: duas proporções */
+function phi(z){ const t=1/(1+0.2316419*Math.abs(z)); const d=0.3989423*Math.exp(-z*z/2);
+  const p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return z>0?1-p:p; }
+function estat(t){
+  const A=t.a||{}, B=t.b||{}, nA=Number(A.base)||0, xA=Number(A.conv)||0, nB=Number(B.base)||0, xB=Number(B.conv)||0;
+  if(nA<=0||nB<=0) return {ok:false,msg:"Preencha a base (pessoas, visitas ou alcance) das duas versões."};
+  if(xA>nA||xB>nB) return {ok:false,msg:"Conversões não podem ser maiores que a base."};
+  const pA=xA/nA, pB=xB/nB, d=pB-pA, pp=(xA+xB)/(nA+nB);
+  const se0=Math.sqrt(pp*(1-pp)*(1/nA+1/nB)), z=se0>0?d/se0:0, p=2*(1-phi(Math.abs(z)));
+  const se=Math.sqrt(pA*(1-pA)/nA+pB*(1-pB)/nB), lo=d-1.96*se, hi=d+1.96*se;
+  const ciA=[Math.max(0,pA-1.96*Math.sqrt(pA*(1-pA)/nA)),Math.min(1,pA+1.96*Math.sqrt(pA*(1-pA)/nA))];
+  const ciB=[Math.max(0,pB-1.96*Math.sqrt(pB*(1-pB)/nB)),Math.min(1,pB+1.96*Math.sqrt(pB*(1-pB)/nB))];
+  let nNec=null;
+  if(d!==0){ const pm=(pA+pB)/2; nNec=Math.ceil(Math.pow(1.96*Math.sqrt(2*pm*(1-pm))+0.8416*Math.sqrt(pA*(1-pA)+pB*(1-pB)),2)/(d*d)); }
+  const poucas=Math.min(xA,xB)<30;
+  let veredito, vk;
+  if(p<0.05&&!poucas){ vk="ok"; veredito=(d>0?"B":"A")+" venceu — a diferença provavelmente é real."; }
+  else if(p<0.05&&poucas){ vk="warn"; veredito="Sinal a favor de "+(d>0?"B":"A")+", mas com poucas conversões. Continue o teste antes de decidir."; }
+  else { vk="warn"; veredito="Inconclusivo: com esta amostra, a diferença ainda pode ser ruído."; }
+  const custo=v=>{const inv=Number(v.inv)||0, c=Number(v.conv)||0; return inv>0&&c>0?inv/c:null;};
+  return {ok:true,pA,pB,d,lift:pA>0?d/pA:null,p,lo,hi,ciA,ciB,nNec,nA,nB,xA,xB,poucas,veredito,vk,cA:custo(A),cB:custo(B)};
+}
+const pct=v=>(v*100).toFixed(v<0.01?2:1).replace(".",",")+"%";
+const brl=v=>v==null?"—":"R$ "+v.toFixed(2).replace(".",",");
+
+function graficoAB(s,t){
+  const max=Math.max(s.ciA[1],s.ciB[1])*1.15||0.01, W=420, x0=90, bw=W-x0-40;
+  const row=(y,lbl,p,ci,col)=>`<text x="0" y="${y+15}" font-size="14" font-weight="700" fill="var(--ink)">${esc(lbl)}</text>
+    <rect x="${x0}" y="${y}" width="${bw*p/max}" height="22" rx="5" fill="${col}"/>
+    <line x1="${x0+bw*ci[0]/max}" x2="${x0+bw*ci[1]/max}" y1="${y+11}" y2="${y+11}" stroke="var(--ink)" stroke-width="2"/>
+    <line x1="${x0+bw*ci[0]/max}" x2="${x0+bw*ci[0]/max}" y1="${y+4}" y2="${y+18}" stroke="var(--ink)" stroke-width="2"/>
+    <line x1="${x0+bw*ci[1]/max}" x2="${x0+bw*ci[1]/max}" y1="${y+4}" y2="${y+18}" stroke="var(--ink)" stroke-width="2"/>
+    <text x="${Math.min(x0+bw*ci[1]/max+8,W-36)}" y="${y+16}" font-size="13" font-weight="700" fill="var(--ink)">${pct(p)}</text>`;
+  return `<svg viewBox="0 0 ${W} 86" style="width:100%;max-width:520px;display:block" role="img" aria-label="Taxa de conversão de A e B com margem de erro">
+    ${row(6,(t.a&&t.a.nome)||"A",s.pA,s.ciA,"var(--soft)")}${row(50,(t.b&&t.b.nome)||"B",s.pB,s.ciB,"color-mix(in srgb,var(--accent) 70%,transparent)")}</svg>`;
+}
+function blocoResultado(t){
+  const s=estat(t);
+  if(!s.ok) return `<p class="note" style="margin:0">${esc(s.msg)}</p>`;
+  const falta=s.nNec?Math.max(0,s.nNec-Math.min(s.nA,s.nB)):null, prog=s.nNec?Math.min(100,Math.round(Math.min(s.nA,s.nB)/s.nNec*100)):100;
+  return `<div class="alert a-${s.vk}" style="font-size:15.5px"><b>${esc(s.veredito)}</b></div>
+    <div style="margin-top:12px">${graficoAB(s,t)}</div>
+    <p class="note" style="margin:4px 0 0">A barra é a taxa; o traço é a margem de erro (95%). Traços que se sobrepõem muito = ainda não dá para separar.</p>
+    <div class="ibox" style="margin-top:12px">
+      <div><span class="lab">Diferença (B − A)</span><b>${(s.d>=0?"+":"")+(s.d*100).toFixed(2).replace(".",",")} p.p.</b><div class="note">${s.lift!=null?(s.lift>=0?"+":"")+(s.lift*100).toFixed(0)+"% relativo":""}</div></div>
+      <div><span class="lab">Faixa provável da diferença</span><b>${(s.lo*100).toFixed(2).replace(".",",")} a ${(s.hi*100).toFixed(2).replace(".",",")} p.p.</b><div class="note">${s.lo<0&&s.hi>0?"inclui zero: pode não haver diferença":"não inclui zero"}</div></div>
+      <div><span class="lab">Chance de ser só acaso (p)</span><b>${s.p<0.001?"< 0,1%":(s.p*100).toFixed(1).replace(".",",")+"%"}</b><div class="note">abaixo de 5% costuma indicar diferença real</div></div>
+      <div><span class="lab">Custo por conversão</span><b>A ${brl(s.cA)} · B ${brl(s.cB)}</b></div>
+    </div>
+    ${s.nNec?`<div style="margin-top:12px"><div class="lrow" style="margin:0"><span class="lab">Amostra para detectar esta diferença</span><span class="note">${s.nNec.toLocaleString("pt-BR")} por versão</span></div>
+      <div class="bar" style="height:10px;margin-top:6px"><i style="width:${prog}%;background:${prog>=100?"var(--ok)":"var(--warn)"}"></i></div>
+      <p class="note" style="margin:6px 0 0">${falta>0?`Faltam cerca de ${falta.toLocaleString("pt-BR")} por versão. Não encerre o teste antes: parar quando o número "fica bom" é a principal causa de vitória falsa.`:"Amostra suficiente para esta diferença (poder de 80%)."}</p></div>`:""}`;
+}
+function statusPill(st){const m={planejado:["Planejado","var(--soft)"],rodando:["Rodando","var(--warnbg)"],concluido:["Concluído","var(--okbg)"]}[st||"planejado"]||["—","var(--soft)"];
+  return `<span class="pill" style="background:${m[1]}">${m[0]}</span>`;}
+function nomeAnalise(id){const a=analises.find(x=>x.id===id);return a?a.titulo:"";}
+
+function renderTestes(){
+  view.innerHTML="";
+  if(testeAberto) return renderTesteForm();
+  view.append($(`<header><h1>Testes</h1><p class="lead">Onde a hipótese vira resultado. Registre duas versões, a métrica e os números: o Studio diz se a diferença é real ou ruído.</p>
+    <div class="chips">${lvl("res")}</div><div class="btnrow"><button class="btn" type="button" id="bNovo">Novo teste</button></div></header>`));
+  view.querySelector("#bNovo").onclick=()=>{testeAberto="novo";testeRascunho=null;render();};
+  if(!DB) view.append($(`<p class="note sec">Os testes ficam salvos quando o Studio é aberto no claude.ai.</p>`));
+  if(!testes.length){ view.append($(`<div class="empty sec"><h2>Nenhum teste ainda</h2><p class="lead" style="margin:0">Comece por "Novo teste", pelo botão no Comparar A × B, ou mande os números ao Claude no chat.</p>
+    <ol><li>Escolha as duas versões (A e B) e a hipótese.</li><li>Defina a métrica: cliques, pedidos no WhatsApp, cadastros, vendas.</li><li>Depois de rodar, lance a base e as conversões de cada versão.</li></ol></div>`)); return; }
+  const l=$(`<div class="hist sec"></div>`);
+  testes.forEach(t=>{const s=estat(t);
+    const b=$(`<button type="button" class="hi" style="align-items:flex-start"><span style="min-width:0;flex:1"><b>${esc(t.titulo||"Teste sem nome")}</b>
+      <div class="meta">${esc(t.metrica||"")}${t.periodo?" · "+esc(t.periodo):""}</div>
+      <div style="margin-top:6px">${s.ok?`<span class="note">A ${pct(s.pA)} · B ${pct(s.pB)} — </span><b class="${s.vk==="ok"?"up":""}">${esc(s.veredito)}</b>`:`<span class="note">Sem números ainda.</span>`}</div></span>${statusPill(t.status)}</button>`);
+    b.onclick=()=>{testeAberto=t.id;testeRascunho=null;render();};l.append(b);});
+  view.append(l);
+}
+
+function renderTesteForm(){
+  const orig=testeAberto==="novo"?null:testes.find(t=>t.id===testeAberto);
+  if(testeAberto!=="novo"&&!orig){testeAberto=null;return renderTestes();}
+  const t=testeRascunho||(orig?JSON.parse(JSON.stringify(orig)):{titulo:"",status:"planejado",a:{nome:"A"},b:{nome:"B"},analise_a:(prefillAB||[])[0]||"",analise_b:(prefillAB||[])[1]||""});
+  if(!t.a)t.a={nome:"A"}; if(!t.b)t.b={nome:"B"};
+  testeRascunho=t; prefillAB=null;
+  const opts=sel=>`<option value="">Sem análise ligada</option>`+analises.map(a=>`<option value="${esc(a.id)}" ${a.id===sel?"selected":""}>${esc(a.titulo)}</option>`).join("");
+  const f=$(`<div>
+    <header><button class="btn ghost" type="button" id="bVoltar">← Testes</button><h1 style="margin-top:12px">${orig?esc(orig.titulo||"Teste"):"Novo teste"}</h1>${lvl("res")}</header>
+    <div class="grid sec" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));align-items:start">
+      <div class="card form">
+        <h2>O teste</h2>
+        <label for="tTit">Nome</label><input id="tTit" data-f="titulo" value="${esc(t.titulo)}" placeholder="Ex.: Reels com rosto × sem rosto">
+        <label for="tHip">Hipótese</label><textarea id="tHip" data-f="hipotese" placeholder="Ex.: Mostrar a garantia reduz a barreira de confiança e aumenta pedidos.">${esc(t.hipotese||"")}</textarea>
+        <label for="tMet">Métrica principal (o que conta como conversão)</label><input id="tMet" data-f="metrica" value="${esc(t.metrica||"")}" placeholder="Ex.: Pedidos pelo WhatsApp">
+        <label for="tBase">Base (de onde se conta)</label><input id="tBase" data-f="base_nome" value="${esc(t.base_nome||"")}" placeholder="Ex.: Pessoas alcançadas, visitantes, cliques">
+        <div class="two"><div><label for="tPub">Público</label><input id="tPub" data-f="publico" value="${esc(t.publico||"")}"></div><div><label for="tCan">Canal</label><input id="tCan" data-f="canal" value="${esc(t.canal||"")}"></div></div>
+        <div class="two"><div><label for="tPer">Período</label><input id="tPer" data-f="periodo" value="${esc(t.periodo||"")}" placeholder="Ex.: 1 a 14/12"></div>
+          <div><label for="tSt">Status</label><select id="tSt" data-f="status" style="max-width:none;width:100%"><option value="planejado">Planejado</option><option value="rodando">Rodando</option><option value="concluido">Concluído</option></select></div></div>
+      </div>
+      <div class="card form">
+        <h2>As versões e os números</h2>
+        ${["a","b"].map(k=>`<fieldset><legend>Versão ${k.toUpperCase()}</legend>
+          <label for="${k}Nome">Nome curto</label><input id="${k}Nome" data-v="${k}.nome" value="${esc(t[k].nome||"")}">
+          <label for="${k}An">Análise ligada</label><select id="${k}An" data-f="analise_${k}" style="max-width:none;width:100%">${opts(t["analise_"+k])}</select>
+          <div class="three"><div><label for="${k}Base">Base</label><input id="${k}Base" inputmode="numeric" data-v="${k}.base" value="${esc(t[k].base??"")}"></div>
+          <div><label for="${k}Conv">Conversões</label><input id="${k}Conv" inputmode="numeric" data-v="${k}.conv" value="${esc(t[k].conv??"")}"></div>
+          <div><label for="${k}Inv">Investimento (R$)</label><input id="${k}Inv" inputmode="decimal" data-v="${k}.inv" value="${esc(t[k].inv??"")}"></div></div></fieldset>`).join("")}
+      </div>
+    </div>
+    <section class="card sec"><div class="lrow" style="margin:0"><h2>Resultado</h2>${lvl("res")}</div><div id="tRes" style="margin-top:10px"></div></section>
+    <section class="card sec form"><h2>Aprendizado</h2><p class="note" style="margin:4px 0 8px">O que este teste muda na sua forma de criar. É isso que vira inteligência acumulada.</p>
+      <textarea id="tApr" data-f="aprendizado" placeholder="Ex.: Para este público, garantia explícita pesa mais que prova social.">${esc(t.aprendizado||"")}</textarea>
+      <div class="btnrow"><button class="btn ghost" type="button" id="bIA">Pedir leitura ao Claude</button><span class="note" id="iaNote"></span></div></section>
+    <div class="btnrow sec"><button class="btn" type="button" id="bSalvar">Salvar teste</button>${orig?`<button class="btn ghost" type="button" id="bExcluir">Excluir</button>`:""}<span class="note" id="saveNote"></span></div>
+  </div>`);
+  view.append(f);
+  f.querySelector("#tSt").value=t.status||"planejado";
+  const num=v=>{let s=String(v).trim().replace(/\s|R\$/g,""); if(s==="") return null;
+    if(s.includes(",")) s=s.replace(/\./g,"").replace(",","."); else if(/^\d{1,3}(\.\d{3})+$/.test(s)) s=s.replace(/\./g,"");
+    const n=Number(s); return isFinite(n)?n:null;};
+  const atual_=()=>{ f.querySelectorAll("[data-f]").forEach(el=>t[el.dataset.f]=el.value);
+    f.querySelectorAll("[data-v]").forEach(el=>{const [k,c]=el.dataset.v.split(".");t[k][c]=c==="nome"?el.value:num(el.value);});
+    f.querySelector("#tRes").innerHTML=blocoResultado(t); };
+  f.addEventListener("input",atual_); f.addEventListener("change",atual_); atual_();
+  f.querySelector("#bVoltar").onclick=()=>{testeAberto=null;testeRascunho=null;render();};
+  const note=f.querySelector("#saveNote");
+  f.querySelector("#bSalvar").onclick=async e=>{
+    if(!DB){note.textContent="Abra o Studio no claude.ai para salvar.";return;}
+    e.target.disabled=true; note.textContent="Salvando…";
+    try{ const body=JSON.parse(JSON.stringify(t)); delete body.id; body.atualizado=new Date().toISOString(); if(!body.criado) body.criado=body.atualizado;
+      const s=estat(t); body.veredito=s.ok?s.veredito:"";
+      const ref=orig?DB.collection("testes").doc(orig.id):DB.collection("testes").doc();
+      await ref.set(body); testeAberto=ref.id; testeRascunho=null; note.textContent="Salvo.";
+    }catch(err){ note.textContent="Não consegui salvar ("+(err&&err.code||"erro")+"). Tente de novo."; }
+    e.target.disabled=false;
+  };
+  const bx=f.querySelector("#bExcluir");
+  if(bx) bx.onclick=async()=>{
+    if(bx.dataset.confirm!=="1"){bx.dataset.confirm="1";bx.textContent="Confirmar exclusão";note.textContent="Toque de novo para excluir de vez.";return;}
+    try{ await DB.collection("testes").doc(orig.id).delete(); testeAberto=null; testeRascunho=null; render(); }catch(err){ note.textContent="Não consegui excluir."; }
+  };
+  const ia=f.querySelector("#bIA"), iaNote=f.querySelector("#iaNote");
+  if(!samplePromise) samplePromise=(window.claude&&window.claude.use)?window.claude.use("sample"):Promise.resolve(null);
+  samplePromise.then(sm=>{ if(!sm){ia.disabled=true;iaNote.textContent="Disponível no claude.ai.";} });
+  ia.onclick=async()=>{ const sm=await samplePromise; if(!sm) return; ia.disabled=true; iaNote.textContent="Pensando…";
+    const s=estat(t), aA=analises.find(a=>a.id===t.analise_a), aB=analises.find(a=>a.id===t.analise_b);
+    const strip=a=>a?{titulo:a.titulo,objetivo:a.objetivo_comportamental,barreiras:a.barreiras,mecanismos:(a.simulador||{}).ativas}:null;
+    const prompt="Você é o analista de neuromarketing da ROD. Em português simples, em até 5 frases: diga o que o resultado deste teste A/B mostra, se dá para concluir, qual hipótese comportamental ele apoia ou não, e o que testar a seguir. Não exagere a certeza. Dados:\n"+JSON.stringify({teste:{titulo:t.titulo,hipotese:t.hipotese,metrica:t.metrica,base:t.base_nome,publico:t.publico,canal:t.canal,a:t.a,b:t.b},estatistica:s.ok?{taxaA:s.pA,taxaB:s.pB,diferenca_pp:s.d*100,faixa_pp:[s.lo*100,s.hi*100],p:s.p,amostra_necessaria:s.nNec,poucas_conversoes:s.poucas}:null,analise_A:strip(aA),analise_B:strip(aB)});
+    try{ const ta=f.querySelector("#tApr"); const r=await sm(prompt,{onText:({text})=>{ta.value=text;},cache:false}); ta.value=r.text; t.aprendizado=r.text; iaNote.textContent="Revise e salve."; }
+    catch(err){ iaNote.textContent=err&&err.code==="rate_limited"?"Muitas perguntas seguidas; espere um pouco.":"Não consegui agora."; }
+    ia.disabled=false; };
+}
+
+function testesDaAnalise(id){ return testes.filter(t=>t.analise_a===id||t.analise_b===id); }
+
+/* =========================================================
+   CREATIVE LAB — da hipótese à direção criativa
+   ========================================================= */
+/* Cada diretriz: área, texto, nível ("ev" = evidência da carta; "of" = prática de ofício) */
+const DIR = {
+  rosto:[["Fotografia","Retrato de meio-corpo ou close, olhos nítidos no terço superior do quadro.","ev"],
+         ["Fotografia","Lente equivalente a 50–85 mm: deforma menos o rosto que uma grande-angular de perto.","of"],
+         ["Luz","Luz suave lateral a ~45° (janela ou softbox); evite luz dura de flash frontal.","of"],
+         ["Composição","Olhar para a câmera cria conexão; olhar para o botão conduz o olho até ele. Escolha pelo objetivo.","ev"],
+         ["Composição","O rosto não deve ser maior que a mensagem quando a mensagem é o foco.","ev"]],
+  olhar_cta:[["Composição","Pessoa olhando ou apontando na direção do CTA, com espaço livre nesse lado do quadro.","ev"],
+             ["Layout","O CTA fica exatamente na linha do olhar, não no canto oposto.","ev"]],
+  contraste:[["Composição","O elemento principal tem o maior contraste de luminosidade da peça; teste em escala de cinza.","ev"],
+             ["Cor","Fundo limpo e uma cor de destaque reservada ao CTA.","of"],
+             ["Tipografia","Título em peso forte; corpo nunca abaixo do equivalente a 13 px na tela.","of"]],
+  surpresa:[["Direção de arte","Um único elemento fora do padrão da categoria (ângulo, objeto, cor ou situação inesperada).","ev"],
+            ["Direção de arte","Teste: ao lado de 5 concorrentes, a peça é achada primeiro?","of"]],
+  historia:[["Roteiro","Antes → virada → depois, com uma pessoa real nomeada (com autorização).","ev"],
+            ["Roteiro","Pelo menos 3 detalhes concretos: hora, lugar, objeto, fala real.","ev"],
+            ["Vídeo","15–30 s em 3 atos; o problema aparece nos 2 primeiros segundos.","of"]],
+  estado_final:[["Fotografia","Mostre a pessoa no momento do benefício, não o produto parado.","ev"],
+                ["Luz","Luz quente e natural para cenas de resultado e bem-estar.","of"]],
+  som:[["Áudio","Assinatura sonora ou voz da marca nos 3 primeiros segundos e no final.","ev"],
+       ["Vídeo","Legenda sempre: boa parte assiste sem som.","of"]],
+  sensorial:[["Fotografia","Macro de textura com luz rasante (lateral e baixa) para mostrar relevo.","of"],
+             ["Fotografia","Close de mãos tocando, dobrando, abrindo o produto.","ev"]],
+  prova_social:[["Copy","Número real + grupo parecido com o público, perto do CTA (ex.: \"412 clínicas no interior de SP\").","ev"],
+                ["Fotografia","Depoimento com nome, rosto e contexto, com consentimento registrado.","ev"]],
+  garantia:[["Copy","Frase simples junto do preço ou do botão: \"7 dias para trocar sem perguntas\".","ev"],
+            ["Layout","Sem selo genérico de \"compra segura\": escreva a regra real.","of"]],
+  halo:[["Produção","Luz controlada, fundo coerente e tipografia consistente; consistência pesa mais que luxo.","ev"]],
+  autoridade:[["Copy","Credencial relevante para esta decisão, ao lado da promessa (não no rodapé).","ev"],
+              ["Fotografia","Especialista em ambiente real de trabalho, não em fundo de banco de imagens.","of"]],
+  cta_unico:[["Copy","Um botão com verbo específico: \"Pedir no WhatsApp\", \"Agendar conversa\" (não \"Saiba mais\").","ev"],
+             ["Layout","O CTA é o segundo elemento mais contrastado da peça; ações secundárias viram link.","ev"]],
+  ancora:[["Layout","Referência real primeiro (acima ou à esquerda); preço atual maior e mais próximo do CTA.","ev"],
+          ["Copy","Só use \"de/por\" com preço efetivamente praticado (CDC art. 37).","ev"]],
+  perda:[["Copy","Nomeie o custo concreto de não agir e a saída na mesma tela.","ev"],
+         ["Cor","Sem vermelho alarmista: o tom é de cuidado, não de pânico.","of"]],
+  escassez_real:[["Copy","Data ou quantidade real escrita + o motivo do limite (\"turma de 20 para dar atenção individual\").","ev"],
+                 ["Layout","Nada de contador que reinicia; se houver contador, ele termina na data real.","ev"]],
+  default:[["Layout","Plano recomendado já destacado, com a razão (\"indicado para quem…\"), sempre a favor do cliente.","ev"]],
+  marca_repetida:[["Direção de arte","Ativo distintivo (cor, símbolo, enquadramento) sempre na mesma posição.","ev"],
+                  ["Vídeo","Marca visível nos 2 primeiros segundos e no final.","ev"],
+                  ["Tipografia","Mesma família e pesos em todas as peças da campanha.","of"]],
+  final_forte:[["Roteiro","O último quadro junta o pico emocional, a marca e a ação. Não termine em logo mudo.","ev"]],
+  elementos_demais:[["Remover","Corte até sobrarem 3–4 grupos visuais. Tire antes de acrescentar.","ev"]],
+  jargao:[["Remover","Reescreva com palavras do dia a dia; uma ideia por frase.","ev"]],
+  superlativo:[["Remover","Troque \"o melhor\" por um número verificável ou delimite para quem é.","ev"]],
+  escassez_falsa:[["Remover","Retire o contador falso; use prazo ou vaga real com motivo.","ev"]],
+  dois_ctas:[["Remover","Escolha um CTA principal; os outros ficam menores ou saem.","ev"]]
+};
+const CANAIS = {
+  feed:{n:"Instagram feed / carrossel",spec:["Formato 4:5 (1080 × 1350) ocupa mais tela no feed.","Título na arte com até ~7 palavras; o resto vai na legenda.","Primeira linha da legenda é o gancho; o CTA vai na arte e na legenda.","Carrossel: a 1ª lâmina promete, a última pede a ação."]},
+  vertical:{n:"Reels / Stories / TikTok",spec:["9:16 (1080 × 1920). Deixe livres o topo (~14%) e a base (~20–35%), onde fica a interface.","Gancho em até 2 s: rosto, movimento ou pergunta.","Legenda embutida; 15–30 s; marca cedo e no final.","Um ponto por vídeo."]},
+  whatsapp:{n:"WhatsApp",spec:["Imagem 1:1 ou 4:5 legível em miniatura.","Mensagem curta: quem é você, o benefício e uma pergunta ou ação.","Nada de disparo genérico; respeite opt-out (LGPD)."]},
+  marketplace:{n:"Marketplace",spec:["Foto principal: produto ocupando a maior parte do quadro, fundo claro e sem texto (regra comum — confira a da plataforma).","Fotos seguintes: uso real, escala, detalhes, embalagem.","Título com o que o comprador busca, não slogan."]},
+  email:{n:"E-mail",spec:["Assunto com até ~40 caracteres; o pré-cabeçalho completa a ideia.","Um CTA visível sem rolar; largura ~600 px.","Presente e pedido em e-mails separados."]},
+  landing:{n:"Landing page",spec:["Primeira tela: promessa, prova e CTA juntos.","Mobile primeiro; uma ação principal por página.","Objeções respondidas perto do botão (preço, garantia, prazo)."]},
+  pdv:{n:"PDV / impresso",spec:["Leitura a 2–3 m: título grande, até ~7 palavras, contraste alto.","Uma mensagem por peça; ver também o plano sensorial.","Teste uma mudança por vez, por 2–3 semanas."]}
+};
+const NIV = {ev:"Evidência",of:"Prática de ofício"};
+let clCanal="feed", briefTxt="", briefings=[];
+
+function briefingTexto(){
+  const a=atual||{}, mecs=[...ativas];
+  const L=[];
+  L.push("BRIEFING CRIATIVO — "+(a.titulo||"Estratégia livre"));
+  if(a.objetivo_comportamental) L.push("Comportamento a mudar: "+a.objetivo_comportamental);
+  const bs=statusBarreiras(); if(bs.length) L.push("Barreiras: "+bs.map(b=>b.nome+(b.peso?" ("+b.peso+")":"")).join("; "));
+  L.push("Canal: "+CANAIS[clCanal].n);
+  L.push("Mecanismos: "+(mecs.map(i=>CMAP[i].n).join(", ")||"nenhum"));
+  const grupos={}; mecs.forEach(id=>(DIR[id]||[]).forEach(([ar,tx,nv])=>{(grupos[ar]=grupos[ar]||[]).push(tx+" ["+NIV[nv]+(nv==="ev"?" · "+evk(CMAP[id].ev):"")+"]");}));
+  Object.entries(grupos).forEach(([ar,its])=>{L.push("");L.push(ar.toUpperCase());its.forEach(x=>L.push("• "+x));});
+  L.push("");L.push("ESPECIFICAÇÕES DO CANAL (confira a regra atual da plataforma)");CANAIS[clCanal].spec.forEach(x=>L.push("• "+x));
+  return L.join("\n");
+}
+
+function renderCreative(){
+  view.innerHTML="";
+  view.append($(`<header><h1>Creative Lab</h1><p class="lead">Da hipótese à execução: os mecanismos ligados no Laboratório viram direção de fotografia, composição, tipografia, cor, copy e roteiro para o canal escolhido.</p>
+    <div class="chips">${lvl("hip")}<span class="note" style="align-self:center">Cada diretriz diz se vem de <b>evidência</b> ou de <b>prática de ofício</b> (convenção de quem faz, não estudo).</span></div></header>`));
+  const top=$(`<div class="grid sec" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));align-items:start">
+    <div class="card"><span class="lab">Canal</span><div class="btnrow" id="canais" style="margin-top:8px"></div></div>
+    <div class="card"><div class="lrow" style="margin:0"><span class="lab">Mecanismos em uso</span><a class="btn ghost" href="#simulador" style="text-decoration:none;padding:6px 12px">Mudar no Laboratório</a></div><div class="chips" id="mecs" style="margin-top:8px"></div></div></div>`);
+  view.append(top);
+  Object.entries(CANAIS).forEach(([k,c])=>{const b=$(`<button type="button" class="btn ${k===clCanal?"":"ghost"}">${esc(c.n)}</button>`);b.onclick=()=>{clCanal=k;renderCreative();};top.querySelector("#canais").append(b);});
+  const mc=top.querySelector("#mecs");
+  if(!ativas.size) mc.append($(`<span class="note">Nenhum mecanismo ligado. Abra o Laboratório e ligue os que atacam as barreiras.</span>`));
+  [...ativas].forEach(id=>{const c=CMAP[id];mc.append($(`<span class="chip" style="background:${c.trap?"var(--badbg)":"var(--soft)"}">${c.trap?"Remover: ":""}${esc(c.n)}</span>`));});
+
+  // barreiras sem mecanismo
+  const semMec=statusBarreiras().filter(b=>b.st!=="ok"&&b.peso);
+  if(semMec.length){
+    const s=$(`<section class="sec card"><h2>Barreiras ainda sem resposta</h2><p class="note" style="margin:4px 0 8px">Mecanismos que atacam cada uma — ligue no Laboratório se fizer sentido.</p></section>`);
+    semMec.forEach(b=>{const sug=CARTAS.filter(c=>!c.trap&&(EXTRA[c.id]||{}).b&&EXTRA[c.id].b.includes(b.id)).map(c=>c.n);
+      s.append($(`<div class="ci s-${b.st==="falha"?"falha":"na"}" style="margin-top:6px"><span class="ic i-${b.st==="falha"?"falha":"na"}">${b.st==="falha"?"✕":"–"}</span><div><b>${esc(b.nome)}</b><span class="n">Opções: ${esc(sug.join(", "))}</span></div></div>`));});
+    view.append(s);
+  }
+
+  // diretrizes por área
+  const grupos={}, ordem=["Remover","Fotografia","Luz","Composição","Layout","Direção de arte","Tipografia","Cor","Copy","Roteiro","Vídeo","Áudio","Produção"];
+  [...ativas].forEach(id=>(DIR[id]||[]).forEach(([ar,tx,nv])=>{(grupos[ar]=grupos[ar]||[]).push({tx,nv,c:CMAP[id]});}));
+  const areas=Object.keys(grupos).sort((a,b)=>(ordem.indexOf(a)+99)%99-(ordem.indexOf(b)+99)%99);
+  if(areas.length){
+    const s=$(`<section class="sec"><div class="shead"><h2>Direção criativa</h2><p>Agrupada por área de execução.</p></div><div class="grid auto" style="align-items:start"></div></section>`);
+    areas.forEach(ar=>{const c=$(`<div class="card" style="${ar==="Remover"?"background:var(--badbg)":""}"><h3>${esc(ar==="Remover"?"Remover primeiro":ar)}</h3></div>`);
+      grupos[ar].forEach(it=>c.append($(`<div style="margin-top:10px"><p style="margin:0">${esc(it.tx)}</p><div class="pills" style="margin-top:4px">${it.nv==="ev"?evc(it.c.ev):`<span class="pill">Prática de ofício</span>`}<span class="pill">${esc(it.c.n)}</span></div></div>`)));
+      s.querySelector(".grid").append(c);});
+    view.append(s);
+  }
+  // specs do canal
+  view.append($(`<section class="sec card"><div class="lrow" style="margin:0"><h2>${esc(CANAIS[clCanal].n)}</h2><span class="pill">Especificação de plataforma · confira a regra atual</span></div>
+    <ul style="margin:10px 0 0;padding-left:18px">${CANAIS[clCanal].spec.map(x=>`<li style="margin:4px 0">${esc(x)}</li>`).join("")}</ul></section>`));
+
+  // briefing completo
+  const bx=$(`<section class="sec card form"><h2>Briefing</h2><p class="note" style="margin:4px 0 8px">Base montada a partir das escolhas acima. Peça ao Claude para transformar em briefing completo, com lista de fotos e 3 opções de título.</p>
+    <textarea id="brief" style="min-height:220px">${esc(briefTxt||briefingTexto())}</textarea>
+    <div class="btnrow"><button class="btn" type="button" id="bBriefIA">Gerar briefing completo com o Claude</button><button class="btn ghost" type="button" id="bCopiar">Copiar</button><button class="btn ghost" type="button" id="bSalvarBrief">Salvar no histórico</button><button class="btn ghost" type="button" id="bRefazer">Refazer a partir das escolhas</button><span class="note" id="briefNote"></span></div></section>`);
+  view.append(bx);
+  const ta=bx.querySelector("#brief"), note=bx.querySelector("#briefNote"), ia=bx.querySelector("#bBriefIA");
+  ta.addEventListener("input",()=>briefTxt=ta.value);
+  bx.querySelector("#bRefazer").onclick=()=>{briefTxt="";ta.value=briefingTexto();note.textContent="";};
+  bx.querySelector("#bCopiar").onclick=()=>{ navigator.clipboard.writeText(ta.value).then(()=>note.textContent="Copiado.",()=>{ta.select();note.textContent="Selecionado: use Ctrl+C.";}); };
+  bx.querySelector("#bSalvarBrief").onclick=async e=>{
+    if(!DB){note.textContent="Abra o Studio no claude.ai para salvar.";return;}
+    e.target.disabled=true;
+    try{ await DB.collection("briefings").doc().set({analise_id:atual?atual.id:"",titulo:(atual?atual.titulo:"Estratégia livre")+" — "+CANAIS[clCanal].n,canal:clCanal,mecanismos:[...ativas],texto:ta.value,criado:new Date().toISOString()}); note.textContent="Salvo no histórico de briefings."; }
+    catch(err){ note.textContent="Não consegui salvar."; }
+    e.target.disabled=false; };
+  if(!samplePromise) samplePromise=(window.claude&&window.claude.use)?window.claude.use("sample"):Promise.resolve(null);
+  samplePromise.then(sm=>{ if(!sm){ia.disabled=true;note.textContent="O briefing com o Claude funciona no claude.ai.";} });
+  ia.onclick=async()=>{ const sm=await samplePromise; if(!sm) return; ia.disabled=true; note.textContent="Escrevendo…";
+    const a=atual?JSON.parse(JSON.stringify(atual)):{}; delete a.imagens;
+    const prompt="Você é diretor de criação da ROD, especialista em neuromarketing. Transforme a base abaixo num briefing criativo pronto para fotógrafo, designer e redator, em português do Brasil. Estrutura: 1) Objetivo e hipótese comportamental (2 frases). 2) Conceito em uma linha. 3) Lista de fotos/cenas (5 itens: enquadramento, lente equivalente, luz, ação). 4) Layout e hierarquia (ordem de leitura). 5) Tipografia e cor (sem citar marcas de terceiros). 6) Copy: 3 opções de título + 1 CTA. 7) Especificações do canal. 8) O que não fazer. Mantenha as marcações [Evidência]/[Prática de ofício]. Nunca recomende prática enganosa, nunca invente número ou depoimento (use [DADO REAL: …]).\n\nBASE:\n"+ta.value+"\n\nANÁLISE (contexto):\n"+JSON.stringify(a).slice(0,9000);
+    try{ const r=await sm(prompt,{onText:({text})=>{ta.value=text;},cache:false,modelTier:"default"}); ta.value=r.text; briefTxt=r.text; note.textContent="Revise e salve."; }
+    catch(err){ note.textContent=err&&err.code==="rate_limited"?"Muitas chamadas seguidas; espere um pouco.":"Não consegui gerar agora."; }
+    ia.disabled=false; };
+
+  // briefings salvos desta análise
+  const meus=briefings.filter(b=>!atual||b.analise_id===atual.id);
+  if(meus.length){
+    const s=$(`<section class="sec"><div class="shead"><h2>Briefings salvos</h2></div><div class="hist"></div></section>`);
+    meus.forEach(b=>{const el=$(`<button type="button" class="hi"><span style="min-width:0"><b>${esc(b.titulo)}</b><div class="meta">${b.criado?new Date(b.criado).toLocaleString("pt-BR"):""}</div></span></button>`);
+      el.onclick=()=>{briefTxt=b.texto||"";clCanal=b.canal||clCanal;renderCreative();window.scrollTo({top:document.getElementById("brief").offsetTop-120});};
+      s.querySelector(".hist").append(el);});
+    view.append(s);
+  }
+}
+
+/* =========================================================
+   JORNADA DA DECISÃO + ATLAS DO CÉREBRO
+   ========================================================= */
+const ETAPAS = [
+  {k:"perceber", n:"Perceber", l:"atencao", b:["atencao"], teen:"A pessoa precisa notar a peça. Se não notar, nada do resto acontece."},
+  {k:"entender", n:"Entender", l:"carga", b:["compreensao"], teen:"Em poucos segundos ela tem que entender do que se trata e o que fazer."},
+  {k:"sentir", n:"Sentir que é para ela", l:"emocao", b:["relevancia"], teen:"Ela precisa se reconhecer: \"isso é para mim\" e sentir algo."},
+  {k:"avaliar", n:"Avaliar", l:"confianca", b:["confianca","valor"], teen:"Agora ela pesa: confio? vale o preço? Aqui prova e clareza ganham."},
+  {k:"agir", n:"Agir", l:"decisao", b:["esforco","urgencia"], teen:"A ação tem que ser fácil e ter um motivo para ser agora."},
+  {k:"lembrar", n:"Lembrar", l:"memoria", b:["memoria"], teen:"Se não agir hoje, a marca precisa voltar à cabeça na hora certa."}
+];
+const ATLAS_INFO = {
+  visual:{p:"Primeiro processamento do que se vê: contraste, bordas, cor, movimento.",lim:"Ativação visual não diz se a pessoa gostou ou entendeu.",q:"primary visual cortex saliency advertising"},
+  fusiforme:{p:"Reconhecimento de rostos, objetos e palavras escritas.",lim:"Responde a rostos em geral; não indica confiança na marca.",q:"fusiform face area face perception review"},
+  parietal:{p:"Atenção dirigida, localização no espaço, números e quantidades.",lim:"Participa de muitas tarefas; não é a \"área da comparação de preço\".",q:"intraparietal sulcus attention numerical cognition review"},
+  tpj:{p:"Reorientar a atenção para o inesperado e pensar no que outra pessoa pensa.",lim:"Envolvida em várias funções sociais e atencionais.",q:"temporoparietal junction theory of mind attention reorienting"},
+  auditivo:{p:"Som, voz, música e ritmo.",lim:"Não mede se o som agradou ou foi lembrado.",q:"auditory cortex music processing review"},
+  s1:{p:"Tato, textura, temperatura e posição do corpo (homúnculo).",lim:"Ver alguém tocar não equivale a tocar.",q:"somatosensory cortex touch consumer haptic"},
+  motor:{p:"Planejar e simular ações como pegar, tocar e clicar.",lim:"O papel da simulação motora no consumo ainda é debatido.",q:"motor simulation action observation consumer"},
+  dlpfc:{p:"Controle, comparação deliberada e memória de trabalho (o \"pensar devagar\").",lim:"Mais ativação não significa decisão melhor ou pior.",q:"dorsolateral prefrontal cortex self-control decision"},
+  ofc:{p:"Valor subjetivo e agradabilidade; integra emoção na decisão (Damásio).",lim:"Correlaciona com valor declarado; não prevê compra individual.",q:"orbitofrontal ventromedial prefrontal subjective value meta-analysis Bartra"},
+  acc:{p:"Conflito, esforço e monitoramento de erro.",lim:"Não é o \"centro da dúvida\": participa de muitas funções.",q:"anterior cingulate cortex conflict monitoring review"},
+  insula:{p:"Sensações do corpo, nojo, risco e a chamada \"dor de pagar\".",lim:"O achado da dor de pagar (Knutson 2007) é um estudo; use como hipótese.",q:"Knutson 2007 neural predictors of purchases insula"},
+  amigdala:{p:"Relevância emocional, novidade e ameaça.",lim:"Não é \"o centro do medo\": responde a tudo que é relevante.",q:"amygdala relevance detection review"},
+  hipocampo:{p:"Formar memórias de episódios, lugares e contexto.",lim:"Memória de marca depende também de repetição e contexto de compra.",q:"hippocampus episodic memory encoding review"},
+  estriado:{p:"Antecipação de recompensa, \"querer\" e erro de predição.",lim:"Querer não é gostar; não é \"botão de compra\".",q:"ventral striatum reward anticipation Knutson"},
+  olfativo:{p:"Cheiro, com acesso direto a emoção e memória.",lim:"Efeitos de aroma no varejo são pequenos a médios e dependem de congruência.",q:"olfaction emotion memory amygdala hippocampus review"},
+  hipotalamo:{p:"Estado do corpo: fome, sede, temperatura e excitação.",lim:"Não é alvo direto de comunicação.",q:"hypothalamus homeostasis food cues"}
+};
+let atlasSel=null;
+
+function renderJornada(){
+  view.innerHTML="";
+  view.append($(`<header><h1>Jornada e Atlas</h1><p class="lead">A jornada mostra em que etapa da decisão ${atual?`<b>${esc(atual.titulo)}</b>`:"a peça"} está forte ou trava. O atlas explica cada região do cérebro associada aos processos, com estudos e limites.</p>
+    <div class="chips">${lvl("hip")}</div></header>`));
+  // jornada
+  const lk={}; (atual&&atual.leituras||[]).forEach(l=>{const k=LKEY[NORM(l.nome)];if(k)lk[k]=l;});
+  const bs={}; statusBarreiras().forEach(b=>bs[b.id]=b);
+  const j=$(`<section class="sec"><div class="shead"><h2>Jornada da decisão</h2><p>Perceber → entender → sentir → avaliar → agir → lembrar.</p></div><div class="jor"></div></section>`);
+  ETAPAS.forEach((e,i)=>{const l=lk[e.l], st=l?(l.status||statusDe(Number(l.nota)||0)):null;
+    const barr=e.b.map(id=>bs[id]).filter(b=>b&&b.peso);
+    const mecs=[...ativas].filter(id=>!CMAP[id].trap&&(EXTRA[id]||{}).b&&e.b.some(x=>EXTRA[id].b.includes(x))).map(id=>CMAP[id].n);
+    const traps=[...ativas].filter(id=>CMAP[id].trap&&(EXTRA[id]||{}).b&&e.b.some(x=>EXTRA[id].b.includes(x))).map(id=>CMAP[id].n);
+    j.querySelector(".jor").append($(`<div class="etapa" style="border-top:6px solid ${st?stc[st]:"var(--line)"}">
+      <span class="lab">Etapa ${i+1}</span><h3>${e.n}</h3>
+      ${l?`<p style="margin:6px 0 0;font-size:14.5px">${esc(l.achado)}</p>`:`<p class="note" style="margin:6px 0 0">Sem leitura para esta etapa.</p>`}
+      ${barr.length?`<p style="margin:8px 0 0;font-size:13.5px"><b>Barreira:</b> ${esc(barr.map(b=>b.nome+" ("+b.peso+")").join(", "))}</p>`:""}
+      ${mecs.length?`<p class="up" style="margin:6px 0 0;font-size:13.5px;font-weight:600">Ajuda: ${esc(mecs.join(", "))}</p>`:""}
+      ${traps.length?`<p class="down" style="margin:6px 0 0;font-size:13.5px;font-weight:600">Atrapalha: ${esc(traps.join(", "))}</p>`:""}
+      <details class="how"><summary>Como funciona</summary><p>${e.teen}</p></details></div>`));});
+  view.append(j);
+  // atlas
+  const at=$(`<section class="sec"><div class="shead"><h2>Atlas do cérebro</h2><p>Toque numa região no cérebro ou na lista. Regiões acesas = associadas aos mecanismos ligados no Laboratório.</p></div>
+    <div class="sim" style="margin-top:0"><div><div class="stage" id="stage2"><span class="hint">Toque numa bolinha para abrir a região · arraste para girar</span>
+      <div class="vis"><button type="button" id="b3dGira2">Parar</button><button type="button" id="b3dVidro2">Sólido</button></div></div></div>
+    <div><div class="card" id="atlasInfo"></div><div class="hist" id="atlasList" style="margin-top:12px"></div></div></div></section>`);
+  view.append(at);
+  const info=at.querySelector("#atlasInfo"), list=at.querySelector("#atlasList");
+  const ativo=regioesAtivas();
+  const mostra=id=>{atlasSel=id;const a=ATLAS[id],x=ATLAS_INFO[id];
+    const mecs=CARTAS.filter(c=>c.r[id]).map(c=>c.n);
+    info.innerHTML=`<span class="lab">${ativo[id]?"Associada aos mecanismos ligados":"Região"}</span><h2 style="margin:4px 0 8px">${esc(a.nome)}</h2>
+      <p style="margin:0"><b>Processo:</b> ${esc(x.p)}</p><p style="margin:8px 0 0"><b>Mecanismos que envolvem:</b> ${esc(mecs.join(", ")||"—")}</p>
+      <p style="margin:8px 0 0"><b>Limite:</b> ${esc(x.lim)}</p>
+      <p class="note" style="margin:10px 0 0">Ver uma região "acender" não prova que a pessoa sentiu, quis ou vai comprar (inferência reversa, Poldrack 2006). <a href="${scholar(x.q)}" target="_blank" rel="noopener" style="color:var(--ink);font-weight:700">ver estudos</a></p>`;
+    list.querySelectorAll(".hi").forEach(b=>b.style.outline=b.dataset.id===id?"2px solid var(--ink)":"none");
+    brain.highlight(id);};
+  Object.entries(ATLAS).sort((a,b)=>(ativo[b[0]]||0)-(ativo[a[0]]||0)).forEach(([id,a])=>{
+    const b=$(`<button type="button" class="hi" data-id="${id}" style="padding:10px 12px"><span class="dot" style="background:${ativo[id]?"var(--accent)":"var(--line)"}"></span><span><b>${esc(a.nome)}</b><div class="meta">${esc(ATLAS_INFO[id].p)}</div></span></button>`);
+    b.onclick=()=>mostra(id); list.append(b);});
+  at.querySelector("#b3dGira2").onclick=e=>{const on=brain.toggleRotate();e.target.textContent=on?"Parar":"Girar";};
+  at.querySelector("#b3dVidro2").onclick=e=>{const solid=brain.toggleGlass();e.target.textContent=solid?"Transparente":"Sólido";};
+  brain.mount(at.querySelector("#stage2"));
+  brain.setAtlas(true, mostra);
+  brain.setRegions(ativo);
+  mostra(atlasSel||Object.keys(ativo)[0]||"visual");
+}
+
+/* =========================================================
+   APRENDIZADOS — inteligência acumulada
+   ========================================================= */
+function renderAprendizados(){
+  view.innerHTML="";
+  view.append($(`<header><h1>Aprendizados</h1><p class="lead">O que os seus testes mostram sobre o seu público, mecanismo por mecanismo. Com o tempo, isso vale mais que qualquer tabela genérica de neuromarketing.</p>
+    <div class="chips">${lvl("res")}<span class="note" style="align-self:center">Só entram testes com números. Poucos testes = sinal fraco; o Studio diz quando.</span></div></header>`));
+  const conc=testes.map(t=>({t,s:estat(t)})).filter(x=>x.s.ok);
+  // por mecanismo
+  const tab={};
+  conc.forEach(({t,s})=>{
+    const A=analises.find(a=>a.id===t.analise_a), B=analises.find(a=>a.id===t.analise_b); if(!A||!B) return;
+    const ma=new Set((A.simulador||{}).ativas||[]), mb=new Set((B.simulador||{}).ativas||[]);
+    const venc=s.vk==="ok"?(s.d>0?"b":"a"):null;
+    const reg=(id,lado)=>{const r=tab[id]=tab[id]||{apoia:0,contra:0,inconc:0,testes:[]};
+      if(!venc) r.inconc++; else if((lado==="a"&&venc==="a")||(lado==="b"&&venc==="b")) r.apoia++; else r.contra++;
+      r.testes.push(t.titulo||"Teste");};
+    ma.forEach(id=>{if(!mb.has(id)&&CMAP[id]) reg(id,"a");});
+    mb.forEach(id=>{if(!ma.has(id)&&CMAP[id]) reg(id,"b");});
+  });
+  const linhas=Object.entries(tab).sort((a,b)=>(b[1].apoia-b[1].contra)-(a[1].apoia-a[1].contra));
+  const s1=$(`<section class="sec card"><div class="lrow" style="margin:0"><h2>Mecanismos no seu público</h2>${lvl("res")}</div>
+    <p class="note" style="margin:4px 0 10px">Conta os testes em que a versão com o mecanismo (e a outra sem) venceu, perdeu ou empatou. Mecanismo dos dois lados não entra.</p><div id="mecTab"></div></section>`);
+  const mt=s1.querySelector("#mecTab");
+  if(!linhas.length) mt.append($(`<p style="margin:0">Ainda não há testes ligados a duas análises com mecanismos diferentes. Registre testes na aba Testes ligando as análises A e B.</p>`));
+  linhas.forEach(([id,r])=>{const c=CMAP[id], n=r.apoia+r.contra+r.inconc;
+    const sinal=n<3?"Sinal fraco (menos de 3 testes)":r.apoia>r.contra?"Tende a funcionar no seu público":r.contra>r.apoia?"Tende a não funcionar no seu público":"Sem direção clara";
+    mt.append($(`<div class="meter" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;padding:10px 0;border-top:1px solid var(--line)">
+      <div><b>${esc(c.n)}</b> ${evc(c.ev)}<div class="note">${esc(sinal)}</div></div>
+      <div class="bar" style="height:12px;display:flex"><i style="width:${r.apoia/n*100}%;background:var(--ok);border-radius:0"></i><i style="width:${r.inconc/n*100}%;background:var(--na);border-radius:0"></i><i style="width:${r.contra/n*100}%;background:var(--bad);border-radius:0"></i></div>
+      <span class="note" style="white-space:nowrap">${r.apoia} venceu · ${r.inconc} empate · ${r.contra} perdeu</span></div>`));});
+  view.append(s1);
+  // barreiras mais comuns
+  const cont={}; analises.forEach(a=>(a.barreiras||[]).forEach(b=>{if(BARR[b.id])cont[b.id]=(cont[b.id]||0)+(b.peso==="alto"?2:1);}));
+  const top=Object.entries(cont).sort((a,b)=>b[1]-a[1]);
+  const s2=$(`<section class="sec card"><div class="lrow" style="margin:0"><h2>Barreiras que mais aparecem</h2>${lvl("hip")}</div><p class="note" style="margin:4px 0 10px">Somadas em todas as análises (peso alto conta em dobro). Mostra onde seus clientes mais travam.</p></section>`);
+  if(!top.length) s2.append($(`<p style="margin:0">Ainda sem barreiras registradas.</p>`));
+  const mx=top.length?top[0][1]:1;
+  top.forEach(([id,v])=>s2.append($(`<div class="meter" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) 40px"><b>${esc(BARR[id].n)}</b><div class="bar"><i style="width:${v/mx*100}%;background:var(--accent)"></i></div><span class="val">${v}</span></div>`)));
+  view.append(s2);
+  // números gerais e aprendizados escritos
+  const venc=conc.filter(x=>x.s.vk==="ok").length;
+  view.append($(`<section class="sec grid auto"><div class="card"><span class="lab">Análises</span><div class="big">${analises.length}</div></div>
+    <div class="card"><span class="lab">Testes com números</span><div class="big">${conc.length}</div></div>
+    <div class="card"><span class="lab">Com vencedor claro</span><div class="big">${venc}</div><span class="note">${conc.length?Math.round(venc/conc.length*100)+"% dos testes":"—"}</span></div></section>`));
+  const apr=testes.filter(t=>t.aprendizado);
+  const s3=$(`<section class="sec"><div class="shead"><h2>O que cada teste ensinou</h2></div><div class="grid auto"></div></section>`);
+  if(!apr.length) s3.querySelector(".grid").append($(`<div class="card"><p style="margin:0">Os aprendizados escritos nos testes aparecem aqui.</p></div>`));
+  apr.forEach(t=>s3.querySelector(".grid").append($(`<div class="card"><b>${esc(t.titulo)}</b>${t.veredito?`<div class="note" style="margin-top:4px">${esc(t.veredito)}</div>`:""}<p style="margin:10px 0 0;white-space:pre-wrap">${esc(t.aprendizado)}</p></div>`)));
+  view.append(s3);
+  const sb=$(`<section class="sec card"><h2>Resumo para a próxima campanha</h2><p class="note" style="margin:4px 0 10px">O Claude lê todos os testes e aprendizados e escreve as regras da casa para o seu público.</p>
+    <div class="btnrow"><button class="btn" type="button" id="bRegras">Gerar regras da casa</button><span class="note" id="regNote"></span></div><div class="msg c" id="regTxt" style="margin-top:12px;max-width:none" hidden></div></section>`);
+  view.append(sb);
+  const bR=sb.querySelector("#bRegras"), rn=sb.querySelector("#regNote"), rt=sb.querySelector("#regTxt");
+  if(!samplePromise) samplePromise=(window.claude&&window.claude.use)?window.claude.use("sample"):Promise.resolve(null);
+  samplePromise.then(sm=>{ if(!sm){bR.disabled=true;rn.textContent="Funciona no claude.ai.";} else if(!conc.length){bR.disabled=true;rn.textContent="Registre testes com números primeiro.";} });
+  bR.onclick=async()=>{ const sm=await samplePromise; if(!sm) return; bR.disabled=true; rn.textContent="Lendo os testes…"; rt.hidden=false;
+    const dados=conc.map(({t,s})=>({titulo:t.titulo,hipotese:t.hipotese,metrica:t.metrica,publico:t.publico,canal:t.canal,taxaA:s.pA,taxaB:s.pB,p:s.p,veredito:s.veredito,aprendizado:t.aprendizado,mecA:(analises.find(a=>a.id===t.analise_a)||{simulador:{}}).simulador.ativas,mecB:(analises.find(a=>a.id===t.analise_b)||{simulador:{}}).simulador.ativas}));
+    const prompt="Você é o analista de neuromarketing da ROD. A partir dos testes A/B abaixo, escreva em português simples até 6 'regras da casa' para o próximo trabalho com este público. Para cada regra: a regra, em quais testes se apoia e o quão forte é o sinal (fraco se poucos testes ou inconclusivos). Não generalize além dos dados; diga o que ainda precisa ser testado. Dados:\n"+JSON.stringify({testes:dados,mecanismos:tab}).slice(0,12000);
+    try{ const r=await sm(prompt,{onText:({text})=>{rt.textContent=text;},cache:false}); rt.textContent=r.text; rn.textContent=""; }
+    catch(err){ rn.textContent="Não consegui agora."; }
+    bR.disabled=false; };
+}
+
+/* =========================================================
+   HISTÓRICO
+   ========================================================= */
+function renderHist(){
+  view.innerHTML="";
+  view.append($(`<header><h1>Histórico</h1><p class="lead">Todas as análises feitas com o Claude. Toque para abrir.</p></header>`));
+  if(!analises.length){view.append(vazio());return;}
+  const l=$(`<div class="hist sec"></div>`);
+  analises.forEach(a=>{const n=Number(a.nota)||0,c=n>=4?"var(--ok)":n>=3?"var(--warn)":"var(--bad)";
+    const b=$(`<button type="button" class="hi"><span class="nota" style="color:${c}">${n}</span><span style="min-width:0"><b>${esc(a.titulo)}</b><div class="meta">${esc((a.contexto&&a.contexto.tipo)||"Análise")} · ${a.criado?new Date(a.criado).toLocaleDateString("pt-BR"):""}${a.resumo?" · "+esc(a.resumo):""}</div></span></button>`);
+    b.onclick=()=>{selecionar(a.id);location.hash="painel";};l.append(b);});
+  view.append(l);
+}
+
+/* =========================================================
+   PERGUNTE AO CLAUDE
+   ========================================================= */
+let samplePromise=null;
+function contexto(){
+  const {s}=calcular(); const a=atual?JSON.parse(JSON.stringify(atual)):null;
+  if(a&&a.imagens) delete a.imagens;
+  return JSON.stringify({analise:a,simulador:{cartas_ligadas:[...ativas].map(i=>CMAP[i].n),notas_previstas:s}});
+}
+function renderAsk(){
+  view.innerHTML="";
+  view.append($(`<header><h1>Pergunte ao Claude</h1><p class="lead">Perguntas sobre ${atual?`<b>${esc(atual.titulo)}</b>`:"neuromarketing"}. As respostas usam a análise e as cartas que você ligou no Simulador.</p></header>`));
+  const box=$(`<div class="card ask sec">
+    <div class="btnrow" style="margin-top:0">
+      <button class="btn ghost" type="button" data-q="Explica essa análise como se eu tivesse 15 anos, em poucos parágrafos curtos.">Explica como se eu tivesse 15 anos</button>
+      <button class="btn ghost" type="button" data-q="Qual carta do simulador eu deveria ligar ou desligar primeiro, e por quê?">Qual carta mudo primeiro?</button>
+      <button class="btn ghost" type="button" data-q="Quais são os 3 maiores riscos desta peça e como resolver cada um?">Maiores riscos</button>
+    </div>
+    <label class="lab" for="askTxt" style="margin-top:14px">Sua pergunta</label>
+    <textarea id="askTxt" placeholder="Ex.: se eu trocar a coroa por outra coisa, a marca fica mais confiável?"></textarea>
+    <div class="btnrow"><button class="btn" type="button" id="askGo">Perguntar</button><span class="note" id="askNote"></span></div>
+    <div class="chat" id="chat"></div></div>`);
+  view.append(box);
+  const chatEl=box.querySelector("#chat"), note=box.querySelector("#askNote"), go=box.querySelector("#askGo"), ta=box.querySelector("#askTxt");
+  const draw=()=>{chatEl.innerHTML="";chat.forEach(m=>chatEl.append($(`<div class="msg ${m.role==="user"?"u":"c"}"></div>`)));[...chatEl.children].forEach((el,i)=>el.textContent=chat[i].shown||chat[i].content);};
+  draw();
+  if(!samplePromise) samplePromise=(window.claude&&window.claude.use)?window.claude.use("sample"):Promise.resolve(null);
+  samplePromise.then(sample=>{ if(!sample){ go.disabled=true; box.querySelectorAll("[data-q]").forEach(b=>b.disabled=true); note.textContent="Disponível quando o Studio é aberto no claude.ai com sua conta."; } });
+  async function perguntar(q){
+    const sample=await samplePromise; if(!sample||!q.trim()) return;
+    const sys="Você é o analista de neuromarketing da ROD. Responda em português do Brasil, simples e direto, como para alguém de 15 anos quando pedido. Base científica: diga se algo é comprovado, depende do público ou é hipótese. Nunca use mitos (95% inconsciente, ocitocina, cérebro reptiliano, dopamina do prazer). Nunca recomende prática enganosa. Contexto da análise atual em JSON:\n"+contexto();
+    chat.push({role:"user",content:q}); const resp={role:"assistant",content:"",shown:"Pensando…"}; chat.push(resp); draw(); go.disabled=true; ta.value="";
+    const msgs=chat.slice(0,-1).map((m,i)=>({role:m.role,content:i===0?sys+"\n\nPergunta: "+m.content:m.content}));
+    try{ const r=await sample(msgs,{onText:({text})=>{resp.shown=text;chatEl.lastElementChild.textContent=text;},cache:false});
+      resp.content=r.text; resp.shown=r.text; }
+    catch(e){ resp.content=""; resp.shown=e&&e.code==="rate_limited"?"Muitas perguntas seguidas. Espere um pouco e tente de novo.":e&&e.code==="not_granted"?"O acesso ao Claude não foi permitido nesta página.":"Não consegui responder agora."; chat.pop(); chat.pop(); chat.push({role:"user",content:q,shown:q}); }
+    draw(); go.disabled=false;
+  }
+  go.onclick=()=>perguntar(ta.value);
+  box.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>perguntar(b.dataset.q));
+}
+
+/* =========================================================
+   CARREGAR ANÁLISES DO BANCO
+   ========================================================= */
+function preencherSelect(){
+  sel.innerHTML="";
+  if(!analises.length){sel.append(new Option("Nenhuma análise","")); return;}
+  analises.forEach(a=>sel.append(new Option(a.titulo||a.id,a.id)));
+  sel.value=atual?atual.id:"";
+}
+let carregou=false;
+function iniciar(){
+  marcarAba(); render();
+  const timer=setTimeout(()=>{ if(!carregou){ sel.innerHTML=""; sel.append(new Option("Sem conexão com o banco","")); } },10000);
+  const use=(window.claude&&window.claude.use)?window.claude.use("db"):Promise.resolve(null);
+  use.then(db=>{
+    DB=db;
+    if(!db){ clearTimeout(timer); carregou=true; preencherSelect(); render(); return; }
+    db.collection("briefings").orderBy("criado","desc").onSnapshot(snap=>{
+      briefings=snap.docs.map(d=>({id:d.id,...d.data()}));
+    },()=>{});
+    db.collection("testes").orderBy("criado","desc").onSnapshot(snap=>{
+      testes=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const r=rota();
+      if((r==="testes"&&!testeAberto)||r==="painel"||r==="aprendizados") render();
+    },()=>{});
+    db.collection("analises").orderBy("criado","desc").onSnapshot(snap=>{
+      if(!snap.metadata.fromCache){ clearTimeout(timer); carregou=true; }
+      analises=snap.docs.map(d=>({id:d.id,...d.data()}));
+      let pref=null; try{pref=localStorage.getItem("rodns.analise");}catch(e){}
+      const manter = atual && analises.find(a=>a.id===atual.id);
+      if(manter){ atual=manter; preencherSelect(); if(rota()!=="simulador") render(); }
+      else { preencherSelect(); selecionar((analises.find(a=>a.id===pref)||analises[0]||{}).id); }
+    }, ()=>{ clearTimeout(timer); carregou=true; preencherSelect(); render(); });
+  });
+}
+iniciar();
+</script>

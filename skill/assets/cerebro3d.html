@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa Cerebral 3D</title>
+<style>
+:root{
+  --bg:#0d0f14; --panel:#151922; --line:#242a36; --ink:#e9ecf2; --mute:#9aa3b2;
+  --hot:#ff5a3c; --warm:#ffb347; --cool:#5ab0ff; --ok:#38d39f; --ctx:#ffc24a; --test:#a98bff;
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#f4f5f8; --panel:#ffffff; --line:#e1e4ea; --ink:#141820; --mute:#5b6473;
+}}
+:root[data-theme="light"]{ --bg:#f4f5f8; --panel:#ffffff; --line:#e1e4ea; --ink:#141820; --mute:#5b6473; }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 380px;height:100vh}
+@media (max-width:880px){.app{grid-template-columns:1fr;grid-template-rows:58vh auto;height:auto}}
+#stage{position:relative;overflow:hidden;min-height:340px}
+#stage canvas{display:block}
+.head{position:absolute;left:16px;top:14px;right:16px;pointer-events:none}
+.head h1{margin:0;font-size:22px;line-height:1.2;font-weight:750;letter-spacing:-.01em}
+.head p{margin:4px 0 0;color:var(--mute);font-size:14px;max-width:62ch}
+.tools{position:absolute;left:16px;bottom:14px;display:flex;flex-wrap:wrap;gap:8px}
+.tools button{background:var(--panel);color:var(--ink);border:0;border-radius:999px;
+  padding:7px 13px;font:600 13px system-ui;cursor:pointer;opacity:.92}
+.tools button.on{background:var(--ink);color:var(--bg)}
+.lbl{position:absolute;transform:translate(-50%,-140%);padding:3px 9px;border-radius:999px;
+  font:650 13px system-ui;white-space:nowrap;pointer-events:auto;cursor:pointer;
+  background:rgba(13,15,20,.82);color:#fff;transition:opacity .15s}
+.lbl.sel{background:#fff;color:#111}
+aside{background:var(--panel);overflow:auto;padding:18px 18px 28px}
+aside h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:0 0 10px}
+.acao{font-size:15px;margin:0 0 16px}
+.reg{padding:12px 0;cursor:pointer}
+.reg + .reg{border-top:1px solid var(--line)}
+.reg .top{display:flex;align-items:center;gap:10px}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.reg b{font-size:15px}
+.bar{height:6px;border-radius:3px;background:var(--line);margin:7px 0 6px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px}
+.reg .papel{color:var(--mute);font-size:13.5px;margin:0}
+.reg .porque{font-size:14px;margin:6px 0 0;display:none}
+.reg.sel .porque{display:block}
+.tag{font:700 11px system-ui;letter-spacing:.04em;padding:2px 7px;border-radius:999px;margin-left:auto}
+.t-ROBUSTO{background:color-mix(in srgb,var(--ok) 22%,transparent);color:var(--ok)}
+.t-CONTEXTUAL{background:color-mix(in srgb,var(--ctx) 22%,transparent);color:var(--ctx)}
+.t-TESTAR{background:color-mix(in srgb,var(--test) 22%,transparent);color:var(--test)}
+.aviso{margin-top:18px;font-size:13px;color:var(--mute);background:color-mix(in srgb,var(--ctx) 9%,transparent);
+  padding:12px;border-radius:10px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="stage">
+    <div class="head"><h1 id="titulo"></h1><p id="sub"></p></div>
+    <div class="tools">
+      <button data-v="esq">Lateral esq.</button>
+      <button data-v="dir">Lateral dir.</button>
+      <button data-v="frente">Frente</button>
+      <button data-v="cima">Cima</button>
+      <button data-v="baixo">Baixo</button>
+      <button id="bGira" class="on">Girar</button>
+      <button id="bVidro" class="on">Transparente</button>
+    </div>
+  </div>
+  <aside>
+    <h2>Ação analisada</h2>
+    <p class="acao" id="acao"></p>
+    <h2>Regiões associadas</h2>
+    <div id="lista"></div>
+    <div class="aviso" id="aviso"></div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* ========= DADOS DA ANÁLISE (o gerador substitui este bloco) ========= */
+const DADOS = /*__DADOS__*/{
+  "titulo": "Exemplo — vitrine com aroma de baunilha",
+  "acao": "Vitrine com uma história só, luz quente e aroma sutil de baunilha na entrada.",
+  "regioes": [
+    {"id":"visual","intensidade":0.9,"porque":"Contraste e ponto focal da vitrine disputam a atenção bottom-up.","evidencia":"ROBUSTO"},
+    {"id":"olfativo","intensidade":0.7,"porque":"Aroma é processado pela via olfativa, com ligação direta a emoção e memória.","evidencia":"CONTEXTUAL"},
+    {"id":"amigdala","intensidade":0.55,"porque":"Relevância emocional do estímulo (agradável ou alarme, ex.: cheiro de mofo).","evidencia":"CONTEXTUAL"},
+    {"id":"ofc","intensidade":0.6,"porque":"Integração multissensorial e julgamento de agradabilidade.","evidencia":"CONTEXTUAL"}
+  ]
+}/*__FIM__*/;
+
+/* ========= ATLAS (posições aproximadas num cérebro estilizado) =========
+   x: esquerda(-)/direita(+)  y: baixo(-)/cima(+)  z: trás(-)/frente(+)          */
+const ATLAS = {
+  visual:     {nome:"Córtex visual (occipital)", p:[0.32,0.08,-0.97], bi:true, prof:false, papel:"Primeiro processamento visual: contraste, borda, cor, movimento."},
+  fusiforme:  {nome:"Giro fusiforme", p:[0.5,-0.36,-0.42], bi:true, prof:false, papel:"Reconhecimento de rostos, objetos e palavras escritas."},
+  parietal:   {nome:"Parietal / sulco intraparietal", p:[0.56,0.5,-0.5], bi:true, prof:false, papel:"Atenção dirigida (top-down), onde/como, números e quantidade."},
+  tpj:        {nome:"Junção temporoparietal", p:[0.76,0.14,-0.42], bi:true, prof:false, papel:"Reorientar atenção para o inesperado; pensar no que o outro pensa."},
+  auditivo:   {nome:"Córtex auditivo (temporal superior)", p:[0.8,-0.06,-0.02], bi:true, prof:false, papel:"Som, música, voz, ritmo."},
+  s1:         {nome:"Somatossensorial (S1)", p:[0.58,0.55,-0.12], bi:true, prof:false, papel:"Tato, textura, temperatura, posição do corpo (homúnculo)."},
+  motor:      {nome:"Córtex motor / pré-motor", p:[0.52,0.6,0.08], bi:true, prof:false, papel:"Planejar e simular ação (pegar, tocar, clicar)."},
+  dlpfc:      {nome:"Pré-frontal dorsolateral", p:[0.62,0.38,0.66], bi:true, prof:false, papel:"Controle, comparação deliberada, memória de trabalho (\"Sistema 2\")."},
+  ofc:        {nome:"Orbitofrontal / pré-frontal ventromedial", p:[0.26,-0.22,0.86], bi:true, prof:false, papel:"Valor subjetivo, agradabilidade, integrar emoção na decisão (Damásio)."},
+  acc:        {nome:"Cingulado anterior", p:[0.12,0.27,0.45], bi:true, prof:true, papel:"Conflito, esforço, dor social, monitorar erro."},
+  insula:     {nome:"Ínsula", p:[0.6,0.0,0.15], bi:true, prof:true, papel:"Sensação do corpo, nojo, risco, \"dor de pagar\", paladar."},
+  amigdala:   {nome:"Amígdala", p:[0.36,-0.27,0.17], bi:true, prof:true, papel:"Relevância emocional e ameaça; não é \"o centro do medo\" isolado."},
+  hipocampo:  {nome:"Hipocampo", p:[0.38,-0.22,-0.15], bi:true, prof:true, papel:"Formar memória de episódios e lugares; contexto."},
+  estriado:   {nome:"Estriado ventral (núcleo accumbens)", p:[0.2,-0.05,0.32], bi:true, prof:true, papel:"Antecipação de recompensa e \"querer\"; erro de predição."},
+  olfativo:   {nome:"Via olfativa (bulbo / piriforme)", p:[0.18,-0.38,0.58], bi:true, prof:true, papel:"Cheiro; acesso direto a amígdala e hipocampo."},
+  hipotalamo: {nome:"Hipotálamo", p:[0.0,-0.32,0.22], bi:false, prof:true, papel:"Estado do corpo: fome, sede, temperatura, excitação autonômica."}
+};
+
+/* ========= RENDER ========= */
+const stage = document.getElementById("stage");
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 50);
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+stage.appendChild(renderer.domElement);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.minDistance = 2.4; controls.maxDistance = 8;
+controls.autoRotate = true; controls.autoRotateSpeed = 1.2;
+camera.position.set(-4.4, 1.1, 1.6); controls.target.set(0,-0.05,-0.05);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x223344, 0.85));
+const dl = new THREE.DirectionalLight(0xffffff, 0.75); dl.position.set(2,3,2); scene.add(dl);
+const dl2 = new THREE.DirectionalLight(0x99bbff, 0.35); dl2.position.set(-2,-1,-3); scene.add(dl2);
+
+const brain = new THREE.Group(); scene.add(brain);
+
+// ruído barato para giros e sulcos
+function gyri(x,y,z){
+  const a = Math.sin(14*x+5*z+Math.sin(6*y))*Math.cos(12*y-3*x+Math.sin(5*z));
+  const b = Math.sin(21*z+7*y+Math.cos(9*x))*Math.sin(17*x+4*y);
+  return Math.tanh(2.2*(0.6*a+0.4*b));
+}
+function hemisferio(lado){
+  const g = new THREE.SphereGeometry(1, 160, 120);
+  const pos = g.attributes.position, v = new THREE.Vector3();
+  for(let i=0;i<pos.count;i++){
+    v.fromBufferAttribute(pos,i);
+    let x=v.x*0.4, y=v.y*0.56, z=v.z*1.0;
+    if(y<0) y*=0.72;                                  // base achatada
+    const tz = Math.exp(-((z-0.05)**2)/0.18);         // lobo temporal desce
+    if(y<0) y -= 0.16*tz*Math.max(0,-v.y);
+    x += 0.1*tz*Math.max(0,-v.y)*0.9;
+    if(v.x<0) x*=0.82;                                // face medial plana
+    const fr = Math.max(0,z-0.4); y -= 0.12*fr*fr;     // frontal desce levemente
+    const n = gyri(v.x*1.2, v.y*1.2, v.z*1.2);
+    const s = 1 + 0.05*n;
+    pos.setXYZ(i, (x*s+0.4)*lado, y*s+0.05, z*s);
+  }
+  g.computeVertexNormals();
+  const cols = new Float32Array(pos.count*3); g.setAttribute("color", new THREE.BufferAttribute(cols,3));
+  return g;
+}
+const vidro = new THREE.MeshStandardMaterial({vertexColors:true, roughness:0.62, metalness:0.0,
+  transparent:true, opacity:0.5, depthWrite:false, side:THREE.DoubleSide});
+const hemis = [hemisferio(-1), hemisferio(1)].map(g=>{const m=new THREE.Mesh(g,vidro); brain.add(m); return m;});
+
+// cerebelo e tronco
+const cg = new THREE.SphereGeometry(1,80,60), cp = cg.attributes.position, cv=new THREE.Vector3();
+for(let i=0;i<cp.count;i++){cv.fromBufferAttribute(cp,i);
+  const r = 1+0.04*Math.sin(40*cv.y);
+  cp.setXYZ(i, cv.x*0.44*r, cv.y*0.19*r-0.4, cv.z*0.26*r-0.7);}
+cg.computeVertexNormals();
+brain.add(new THREE.Mesh(cg, new THREE.MeshStandardMaterial({color:0x9aa0b0,roughness:.7,transparent:true,opacity:.35,depthWrite:false})));
+const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.08,0.6,24),
+  new THREE.MeshStandardMaterial({color:0x9aa0b0,roughness:.7,transparent:true,opacity:.35,depthWrite:false}));
+tronco.position.set(0,-0.62,-0.18); tronco.rotation.x=0.25; brain.add(tronco);
+
+// cores por intensidade
+function calor(t){
+  const a=new THREE.Color(0x5ab0ff), b=new THREE.Color(0xffb347), c=new THREE.Color(0xff3b2f);
+  return t<0.5 ? a.clone().lerp(b,t*2) : b.clone().lerp(c,(t-0.5)*2);
+}
+const base = new THREE.Color(0xd9c9c4);
+const ativos = [];
+DADOS.regioes.forEach(r=>{
+  const a = ATLAS[r.id]; if(!a) return;
+  const lados = a.bi ? [-1,1] : [1];
+  const pts = lados.map(s=>new THREE.Vector3(a.p[0]*s, a.p[1], a.p[2]));
+  ativos.push({...r, a, pts, cor: calor(r.intensidade)});
+});
+
+// pinta o córtex perto das regiões superficiais
+hemis.forEach(m=>{
+  const pos=m.geometry.attributes.position, col=m.geometry.attributes.color, v=new THREE.Vector3();
+  for(let i=0;i<pos.count;i++){
+    v.fromBufferAttribute(pos,i);
+    let c = base.clone();
+    ativos.forEach(r=>{ if(r.a.prof) return;
+      r.pts.forEach(p=>{ const d=v.distanceTo(p); const w=Math.exp(-(d*d)/0.05)*r.intensidade;
+        if(w>0.02) c.lerp(r.cor, Math.min(1,w*1.25)); }); });
+    col.setXYZ(i,c.r,c.g,c.b);
+  }
+  col.needsUpdate=true;
+});
+
+// brilho para estruturas profundas (e núcleo em todas)
+function glowTex(){
+  const cv=document.createElement("canvas"); cv.width=cv.height=128; const x=cv.getContext("2d");
+  const g=x.createRadialGradient(64,64,0,64,64,64);
+  g.addColorStop(0,"rgba(255,255,255,1)"); g.addColorStop(.25,"rgba(255,255,255,.6)"); g.addColorStop(1,"rgba(255,255,255,0)");
+  x.fillStyle=g; x.fillRect(0,0,128,128); return new THREE.CanvasTexture(cv);
+}
+const gt = glowTex(), sprites=[];
+ativos.forEach(r=>{
+  r.pts.forEach(p=>{
+    const sm = new THREE.SpriteMaterial({map:gt, color:r.cor, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending});
+    const s = new THREE.Sprite(sm); s.position.copy(p);
+    const k = (r.a.prof?0.42:0.3)*(0.6+0.6*r.intensidade); s.scale.set(k,k,k);
+    s.userData={k, r}; brain.add(s); sprites.push(s);
+    const core = new THREE.Mesh(new THREE.SphereGeometry(r.a.prof?0.05:0.035,20,16),
+      new THREE.MeshBasicMaterial({color:r.cor})); core.position.copy(p); brain.add(core);
+  });
+});
+
+/* ========= RÓTULOS E PAINEL ========= */
+document.getElementById("titulo").textContent = DADOS.titulo || "Mapa cerebral";
+document.getElementById("sub").textContent = "Arraste para girar · role para aproximar · clique numa região";
+document.getElementById("acao").textContent = DADOS.acao || "";
+document.getElementById("aviso").innerHTML = DADOS.aviso ||
+  "<b>Leia assim:</b> o mapa mostra regiões que a literatura associa aos <i>processos</i> que a ação envolve (atenção, valor, memória, emoção). Não é medição do seu público e não prova compra: o cérebro trabalha em rede, e deduzir \"o cliente quer\" porque uma área acende é inferência reversa. Para saber se funciona, teste comportamento.";
+
+let sel = null;
+const lista = document.getElementById("lista");
+const lbls = [];
+[...ativos].sort((a,b)=>b.intensidade-a.intensidade).forEach(r=>{
+  const ev = (r.evidencia||"TESTAR").replace("A TESTAR","TESTAR").replace(/[\[\]]/g,"");
+  const el = document.createElement("div"); el.className="reg";
+  el.innerHTML = `<div class="top"><span class="dot" style="background:#${r.cor.getHexString()}"></span>
+    <b>${r.a.nome}</b><span class="tag t-${ev}">${ev==="TESTAR"?"A TESTAR":ev}</span></div>
+    <div class="bar"><i style="width:${Math.round(r.intensidade*100)}%;background:#${r.cor.getHexString()}"></i></div>
+    <p class="papel">${r.a.papel}</p><p class="porque">${r.porque||""}</p>`;
+  el.onclick=()=>escolher(r); r.el=el; lista.appendChild(el);
+  const l = document.createElement("div"); l.className="lbl"; l.textContent=r.a.nome.split(" (")[0].split(" /")[0];
+  l.onclick=()=>escolher(r); stage.appendChild(l); lbls.push({l,r});
+});
+function escolher(r){
+  sel = sel===r ? null : r;
+  ativos.forEach(x=>x.el.classList.toggle("sel", x===sel));
+  lbls.forEach(o=>o.l.classList.toggle("sel", o.r===sel));
+  if(sel){ sel.el.scrollIntoView({block:"nearest",behavior:"smooth"}); setBtn(bGira,false); controls.autoRotate=false; }
+}
+
+/* ========= CONTROLES ========= */
+const vistas = {esq:[-4.6,0.3,0], dir:[4.6,0.3,0], frente:[0,0.3,4.6], cima:[0,4.7,0.01], baixo:[0,-4.7,0.01]};
+function setBtn(b,on){ b.classList.toggle("on",on); }
+document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{
+  const v=vistas[b.dataset.v]; camera.position.set(...v); controls.autoRotate=false; setBtn(bGira,false);});
+const bGira=document.getElementById("bGira"), bVidro=document.getElementById("bVidro");
+bGira.onclick=()=>{controls.autoRotate=!controls.autoRotate; setBtn(bGira,controls.autoRotate);};
+bVidro.onclick=()=>{const on=vidro.opacity<0.9; vidro.opacity=on?1:0.5; vidro.depthWrite=on;
+  setBtn(bVidro,!on); vidro.needsUpdate=true;};
+
+function resize(){ const w=stage.clientWidth, h=stage.clientHeight;
+  renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+addEventListener("resize",resize); resize();
+
+const tmp=new THREE.Vector3(), camDir=new THREE.Vector3();
+function tick(t){
+  controls.update();
+  sprites.forEach(s=>{ const on = !sel || s.userData.r===sel;
+    const k=s.userData.k*(1+0.12*Math.sin(t/380+s.userData.k*9))*(on?1:0.55); s.scale.set(k,k,k);
+    s.material.opacity = on?1:0.25; });
+  lbls.forEach(({l,r})=>{
+    // rótulo no ponto mais voltado para a câmera
+    let best=null, bd=-9; camera.getWorldDirection(camDir);
+    r.pts.forEach(p=>{ const d=-p.clone().normalize().dot(camDir); if(d>bd){bd=d;best=p;} });
+    tmp.copy(best).project(camera);
+    l.style.left=((tmp.x+1)/2*stage.clientWidth)+"px"; l.style.top=((1-tmp.y)/2*stage.clientHeight)+"px";
+    const vis = bd> -0.25 || r.a.prof; l.style.opacity = (sel && sel!==r) ? .25 : (vis?1:.35);
+  });
+  renderer.render(scene,camera); requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
