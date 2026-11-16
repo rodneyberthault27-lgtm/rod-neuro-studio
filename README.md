@@ -1,5 +1,9 @@
 # ROD Neuro Studio
 
+**Abrir o painel online:** https://rod-neuro-studio.rodead.chatgpt.site
+
+Acesso privado com a conta do proprietário. Esta versão web preserva os briefings neste navegador; IA, histórico e dados do Artifact não foram migrados do Claude.
+
 Da hipótese comportamental à decisão criativa.
 
 Workspace visual de neuromarketing com Painel, Laboratório de hipóteses, Creative Lab, Jornada e Atlas 3D, Comparador A × B, Testes, Aprendizados e Histórico.
