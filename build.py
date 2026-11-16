@@ -13,4 +13,6 @@ for marker, end_marker, source in [
     html = html[:start] + (root / source).read_text(encoding='utf-8') + '\n' + html[end:]
 p.write_text(html, encoding='utf-8')
 (root / 'skill/assets/rod-neuro-studio.html').write_text(html, encoding='utf-8')
-print('index.html e cópia da skill atualizados.')
+(root / 'dist').mkdir(exist_ok=True)
+(root / 'dist/index.html').write_text(html, encoding='utf-8')
+print('index.html, dist/index.html e cópia da skill atualizados.')
