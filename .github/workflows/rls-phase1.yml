@@ -1,0 +1,41 @@
+name: ROD v3 PostgreSQL RLS smoke
+on:
+  push:
+    branches:
+      - feature/studio-v3
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  postgres-rls:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: rodtest
+          POSTGRES_DB: rodtest
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d rodtest"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: rodtest
+      PGDATABASE: rodtest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y postgresql-client
+      - name: Prepare synthetic Supabase schemas and roles
+        run: psql -v ON_ERROR_STOP=1 -f tests/sql/mock_supabase.sql
+      - name: Apply Phase 1 migration to disposable database
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261117000000_rod_v3.sql
+      - name: Validate RLS isolation and asset policy
+        run: psql -v ON_ERROR_STOP=1 -f tests/sql/rls_smoke.sql
