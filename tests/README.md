@@ -30,3 +30,19 @@ o próprio build com versões fixadas e isolar a simulação visual.
 - Não fazem deploy. O workflow não possui permissão de escrita e só roda em branch/PR.
 
 Baseline: docs/architecture/baseline-v2.md.
+
+## ROD-003/004: migração em dry run
+
+O contrato legado e o modelo lógico estão em `docs/architecture/`.
+O export privado não vem do repositório e não é produzido por este teste.
+
+    python tools/migrate_legacy.py tests/fixtures/legacy_synthetic.json --check
+
+Para exportações privadas autorizadas:
+
+    python tools/migrate_legacy.py /private/rod-legacy-private.json --check
+    python tools/migrate_legacy.py /private/rod-legacy-private.json --stage /private/staging-private
+
+Sem `--stage`, a ferramenta não escreve arquivos; com `--stage`, emite JSONL
+somente na pasta nova fornecida. Não acessa Claude, banco ou serviços remotos.
+Dados observados do legado não recebem status verificado.

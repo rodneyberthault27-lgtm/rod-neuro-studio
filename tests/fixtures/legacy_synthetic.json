@@ -1,0 +1,75 @@
+{
+  "export_format": "rod-legacy-v1",
+  "collections": {
+    "analises": [
+      {
+        "id": "synthetic-a",
+        "titulo": "Peça fictícia A",
+        "criado": "2026-11-01T15:00:00Z",
+        "objetivo_comportamental": "Solicitar orçamento",
+        "imagens": {
+          "peca": "/_blob/sample-placeholder"
+        },
+        "leituras": [
+          {
+            "nome": "Atenção",
+            "nota": 5
+          }
+        ],
+        "resultados": [
+          {
+            "metrica": "clicou",
+            "valor": 10
+          }
+        ]
+      },
+      {
+        "id": "synthetic-b",
+        "titulo": "Peça fictícia B",
+        "status_analise": "briefing",
+        "criado": "2026-11-01T16:00:00Z",
+        "intencao": {
+          "ideia": "Experiência simulada"
+        }
+      }
+    ],
+    "briefings": [
+      {
+        "id": "brief-synthetic-1",
+        "analise_id": "synthetic-a",
+        "titulo": "Exemplo de criação",
+        "texto": "Exemplo"
+      },
+      {
+        "id": "brief-orphan",
+        "analise_id": "missing-analysis",
+        "titulo": "Sem vínculo comprovado"
+      }
+    ],
+    "testes": [
+      {
+        "id": "test-synthetic-1",
+        "status": "concluido",
+        "hipotese": "Teste simulado",
+        "analise_a": "synthetic-a",
+        "analise_b": "synthetic-b",
+        "a": {
+          "base": 1000,
+          "conv": 20
+        },
+        "b": {
+          "base": 1000,
+          "conv": 24
+        },
+        "aprendizado": "Hipótese fictícia"
+      }
+    ]
+  },
+  "local_projects": [
+    {
+      "id": "local-synthetic-1",
+      "titulo": "Projeto do navegador fictício",
+      "status_analise": "briefing"
+    }
+  ]
+}
