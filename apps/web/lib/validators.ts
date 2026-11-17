@@ -10,9 +10,12 @@ export const projectSchema = z.object({
   audience: z.string().trim().max(1000).default(''),
   channel: z.string().trim().max(120).default('')
 }).strict();
-export const patchProjectSchema = projectSchema.omit({workspace_id:true}).partial().refine(
-  data => Object.keys(data).length > 0, {message:'Nenhum campo para atualizar.'}
-);
+export const patchProjectSchema = z.object({
+  title: short.optional(),
+  objective: z.string().trim().max(2000).optional(),
+  audience: z.string().trim().max(1000).optional(),
+  channel: z.string().trim().max(120).optional()
+}).strict().refine(data => Object.keys(data).length > 0, {message:'Nenhum campo para atualizar.'});
 export const documentSchema = z.object({
   kind: z.enum(['briefing','analysis','creative_version','experiment','learning']),
   payload: z.record(z.string(),z.unknown()).refine(v => JSON.stringify(v).length<=40000,{
