@@ -80,3 +80,14 @@ As funções `rod_create_workspace`, `rod_workspace_role` e
 `rod_asset_path_allowed` permanecem acessíveis a usuários autenticados
 por necessidade de RPC/RLS; tais grants são intencionais e devem ser
 revisados caso o modelo de autorização mude.
+
+## Exemplo guiado (após login real)
+
+No workspace escolhido, clique em **Criar exemplo com briefing** para gerar
+um projeto e um briefing sintéticos usando as APIs autenticadas do Studio.
+Não são criados automaticamente e não representam dados ou pesquisas reais.
+A operação utiliza duas chamadas, uma para o projeto e outra para o documento;
+se a segunda falhar, o projeto criado permanece para recuperação manual.
+A função exige uma conta autenticada e um workspace com permissão de edição.
+Para evidências e limites dos testes de homologação, veja
+`docs/qa/homologation-v3.md`.

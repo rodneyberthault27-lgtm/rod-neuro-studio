@@ -1,6 +1,7 @@
 'use client';
 import {useCallback,useEffect,useState} from 'react';
 import {useRouter} from 'next/navigation';
+import {demoProject,demoBriefing} from '@/lib/demo';
 
 type Workspace={id:string;name:string;created_at:string};
 type Project={id:string;workspace_id:string;title:string;objective:string;audience:string;channel:string;status:string;created_at:string;updated_at:string};
@@ -86,6 +87,22 @@ export function StudioWorkspace({email}:{email:string}) {
       await refreshProjects(workspaceId);
       setProjectId(data.project.id);
       setNewProject({title:'',objective:'',audience:'',channel:''});
+    });
+  }
+  function createDemo(){
+    if(!workspaceId)return;
+    void mutate(async()=>{
+      const {project}=await request<{project:Project}>('/api/projects',
+        sendJson({workspace_id:workspaceId,...demoProject}));
+      await refreshProjects(workspaceId);
+      setProjectId(project.id);
+      try{
+        await request('/api/projects/'+project.id+'/documents',sendJson(demoBriefing));
+      }catch(e){
+        const reason=e instanceof Error?e.message:'Erro ao criar briefing.';
+        throw new Error('Projeto demonstrativo criado, mas o briefing não foi salvo: '+reason);
+      }
+      await refreshFiles(project.id);
     });
   }
   function saveProject(event:React.FormEvent){
@@ -179,7 +196,12 @@ export function StudioWorkspace({email}:{email:string}) {
             <label>Canal<input value={newProject.channel} maxLength={120} onChange={e=>setNewProject({...newProject,channel:e.target.value})} placeholder="WhatsApp, Instagram, e-mail..." /></label>
             <label>Público<textarea value={newProject.audience} maxLength={1000} onChange={e=>setNewProject({...newProject,audience:e.target.value})} placeholder="Quem deve tomar a decisão?" /></label>
             <label>Comportamento desejado<textarea value={newProject.objective} maxLength={2000} onChange={e=>setNewProject({...newProject,objective:e.target.value})} placeholder="O que você quer que aconteça?" /></label>
-            <div className="buttons span2"><button className="action" disabled={busy}>Criar projeto</button></div>
+            <div className="buttons span2">
+              <button className="action" disabled={busy}>Criar projeto</button>
+              <button className="action secondary" type="button" disabled={busy} onClick={createDemo}>
+                Criar exemplo com briefing
+              </button>
+            </div>
           </form>
         </section>
         {selected&&<div className="columns">

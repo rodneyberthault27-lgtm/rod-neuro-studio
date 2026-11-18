@@ -1,14 +1,14 @@
 # ROD Neuro Studio 3.0 | Gate de homologação (sem produção)
 
-Status atual: **não executado no Supabase real**. O CI usa um banco PostgreSQL descartável
-com esquema reduzido do Supabase. Nenhuma conta, arquivo ou credencial do usuário é acessada.
+Status: **teste transacional de RLS executado no Supabase real**, sem Auth/Storage HTTP.
+O CI também usa banco PostgreSQL descartável. Nenhuma conta real ou dado do usuário foi acessado.
 
 ## Pré-requisitos
 
 - Projeto Supabase **de homologação**, separado de qualquer operação real.
 - Domínio e callback autenticado autorizados no Auth.
 - Migrações SQL `20261117000000_rod_v3.sql` e
-  `20261117010000_rod_hardening.sql` aplicadas nesta ordem.
+  `20261117010000_rod_hardening.sql` e `20261117020000_rod_function_grants.sql` aplicadas nesta ordem.
 - Bucket `rod-private` privado, MIME restrito, 10 MiB.
 - Chave **publicável** somente no ambiente de homologação; nenhuma service-role em cliente.
 - Usuários de teste A (owner), B (viewer em A) e C (não membro). Sem dados pessoais reais.
@@ -60,3 +60,35 @@ Só habilitar aplicação na hospedagem server-side depois que testes reais em h
 forem comprovados. Manter o site legado e `main` inalterados até aprovação explícita.
 A migração de dados do Claude permanece uma frente separada, com exportação autorizada
 e revisão de conteúdo antes de qualquer importação.
+
+## Homologação parcial no Supabase real (17/11/2026)
+
+Projeto: `rod-neuro-studio-staging` (`sa-east-1`).
+
+- Três migrations aplicadas: `rod_v3_initial`, `rod_v3_hardening` e
+  `rod_v3_function_grants`. Seis tabelas com RLS e bucket `rod-private` privado.
+- Exercício transacional **no banco Supabase real** com três identidades sintéticas:
+  proprietário, visualizador e usuário não membro. Usou `SET LOCAL ROLE` e
+  `request.jwt.claim.sub`; **não foi um teste de login Auth**.
+- Projetos e briefings sintéticos criados e consultados durante a transação:
+  proprietário leu e escreveu; visualizador leu, mas não inseriu; usuário
+  sem associação não viu workspace, projeto ou documento.
+- Regras impediram alterar autoria, gravar `review_state=verified` diretamente,
+  upload por visualizador e leitura por não membro no helper de paths.
+- Verificada a revogação de `EXECUTE` anônimo das funções privilegiadas.
+- `ROLLBACK` ao final. Recontagem confirmou zero contas, workspaces,
+  projetos, documentos e objetos armazenados.
+- A aplicação agora contém ação **Criar exemplo com briefing**, disponível
+  somente depois do login em `/studio` e de criar/selecionar workspace.
+  O botão usa as APIs existentes, RLS e validações do backend. Não insere
+  dados automaticamente e não configura usuários reais.
+
+**Não validado ainda:** cadastro/login Auth pelo navegador, persistência entre
+sessões, upload binário por Storage, URL assinada e expiração, bloqueio
+de objetos em requisição HTTP e isolamento por JWTs reais. É necessária
+hospedagem server-side separada para a aplicação Next.js e contas de teste
+autorizadas. A versão legada permanece isolada.
+
+**Pendências de release:** verificação de segurança restante, controle de
+cadastros, limites de abuso e upload, antivírus/inspeção de PDF, LGPD
+e plano de rollback.
