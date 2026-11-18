@@ -7,10 +7,17 @@ select public.rod_create_workspace('Workspace A') as wa \gset
 insert into public.rod_projects(workspace_id,title,objective,created_by)
 values (:'wa'::uuid,'Projeto privado','Pedido',auth.uid()) returning id as pa \gset
 select set_config('rod.test.workspace', :'wa', false);
+select set_config('rod.test.project', :'pa', false);
 insert into public.rod_documents(workspace_id,project_id,kind,payload,created_by)
 values (:'wa'::uuid,:'pa'::uuid,'briefing','{"text":"Rascunho sintético"}',auth.uid());
 insert into storage.objects(bucket_id,name)
-values('rod-private',:'wa'||'/'||:'pa'||'/file.png');
+values('rod-private',:'wa'||'/'||:'pa'||'/123e4567-e89b-42d3-a456-426614174000.png');
+insert into public.rod_assets (
+  workspace_id,project_id,storage_key,original_name,mime_type,byte_size,created_by
+) values (
+  :'wa'::uuid,:'pa'::uuid,:'wa'||'/'||:'pa'||'/123e4567-e89b-42d3-a456-426614174000.png',
+  'sample.png','image/png',100,auth.uid()
+);
 -- Existing owner can read one project/document
 do $$
 begin
@@ -22,14 +29,48 @@ begin
  end if;
 end $$;
 
+
+-- Hardening 1: updates may change commercial text only, never identity fields.
+do $
+begin
+  begin
+    update public.rod_projects set created_by = auth.uid()
+    where id = current_setting('rod.test.project')::uuid;
+    raise exception 'User updated immutable project author';
+  exception when insufficient_privilege then null; end;
+  begin
+    update public.rod_projects
+    set workspace_id = current_setting('rod.test.workspace')::uuid
+    where id = current_setting('rod.test.project')::uuid;
+    raise exception 'User updated immutable project workspace';
+  exception when insufficient_privilege then null; end;
+end $;
+
+-- Hardening 2: workspace/project UUIDs and generated asset UUID must match.
+do $
+begin
+  begin
+    insert into public.rod_assets(
+      workspace_id,project_id,storage_key,original_name,mime_type,byte_size,created_by
+    ) values (
+      current_setting('rod.test.workspace')::uuid,
+      current_setting('rod.test.project')::uuid,
+      '00000000-0000-4000-8000-000000000000/'||
+      current_setting('rod.test.project')||'/123e4567-e89b-42d3-a456-426614174001.png',
+      'incorrect.png','image/png',100,auth.uid()
+    );
+    raise exception 'Invalid cross-workspace asset metadata accepted';
+  exception when check_violation then null; end;
+end $;
+
 -- Path is private, tied to its matching workspace and project.
-select public.rod_asset_path_allowed(:'wa'||'/'||:'pa'||'/file.png',true) as owner_upload \gset
+select public.rod_asset_path_allowed(:'wa'||'/'||:'pa'||'/123e4567-e89b-42d3-a456-426614174000.png',true) as owner_upload \gset
 \if :owner_upload
 \else
 \echo 'owner upload permission unexpectedly false'
 \quit 1
 \endif
-select public.rod_asset_path_allowed(:'wa'||'/bad-project/file.png',true) as bad_path \gset
+select public.rod_asset_path_allowed(:'wa'||'/bad-project/123e4567-e89b-42d3-a456-426614174000.png',true) as bad_path \gset
 \if :bad_path
 \echo 'invalid asset path unexpectedly allowed'
 \quit 1
@@ -59,6 +100,13 @@ begin
  end;
 end $$;
 
+
+select public.rod_asset_path_allowed(:'wa'||'/'||:'pa'||'/file.png',true) as bad_filename \gset
+\if :bad_filename
+\echo 'Unauthorized arbitrary filename accepted'
+\quit 1
+\endif
+
 -- Give user 2 viewer access to A from privileged admin, not from anonymous code.
 reset role;
 insert into public.rod_memberships(workspace_id,user_id,role)
@@ -74,13 +122,13 @@ begin
    raise exception 'Viewer cannot read shared file';
  end if;
 end $$;
-select public.rod_asset_path_allowed(:'wa'||'/'||:'pa'||'/file.png',false) as viewer_read \gset
+select public.rod_asset_path_allowed(:'wa'||'/'||:'pa'||'/123e4567-e89b-42d3-a456-426614174000.png',false) as viewer_read \gset
 \if :viewer_read
 \else
 \echo 'viewer cannot read asset'
 \quit 1
 \endif
-select public.rod_asset_path_allowed(:'wa'||'/'||:'pa'||'/file.png',true) as viewer_write \gset
+select public.rod_asset_path_allowed(:'wa'||'/'||:'pa'||'/123e4567-e89b-42d3-a456-426614174000.png',true) as viewer_write \gset
 \if :viewer_write
 \echo 'viewer can write asset'
 \quit 1

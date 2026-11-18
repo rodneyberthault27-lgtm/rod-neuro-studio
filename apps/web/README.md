@@ -51,3 +51,17 @@ Sem URL e chave, a tela do Studio exibe um setup seguro. O build em CI não comp
 - Storage e Postgres não compartilham transação; o endpoint tenta remover o blob caso falhe a gravação dos metadados. Reconciliador de órfãos fica para próxima etapa.
 - Documentos são imutáveis nesta fase. O Validation Lab com resultados científicos não está integrado.
 - Este código não faz deploy, não atualiza a versão antiga e não recupera documentos do Claude.
+
+## Gate de homologação (Fase 1.1)
+
+Aplicar as migrations `20261117000000_rod_v3.sql` e
+`20261117010000_rod_hardening.sql` **nesta ordem** em um
+Supabase de homologação separado. Nunca usar dados de clientes para testes iniciais.
+
+A migration de hardening restringe UPDATE a título, público, objetivo e canal,
+mantendo IDs, workspace, autoria e estados protegidos. Os caminhos de arquivo
+devem coincidir com o workspace e projeto e terminar em UUID válido e extensão
+permitida. O GitHub Actions executa smoke tests dessas regras em PostgreSQL
+descartável, mas isso não substitui um teste com Auth e Storage reais.
+
+Checklist de aceite e procedimentos: `docs/qa/homologation-v3.md`.

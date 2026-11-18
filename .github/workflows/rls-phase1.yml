@@ -37,5 +37,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f tests/sql/mock_supabase.sql
       - name: Apply Phase 1 migration to disposable database
         run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261117000000_rod_v3.sql
+      - name: Apply RLS hardening migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261117010000_rod_hardening.sql
       - name: Validate RLS isolation and asset policy
         run: psql -v ON_ERROR_STOP=1 -f tests/sql/rls_smoke.sql
