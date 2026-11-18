@@ -168,3 +168,26 @@ begin
 end $$;
 reset role;
 \echo 'ROD RLS synthetic smoke checks passed.'
+
+-- Check actual privileges, including explicit grants to anon by Supabase.
+DO $$
+DECLARE fn record;
+BEGIN
+  FOR fn IN
+    SELECT p.oid, p.proname
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid=p.pronamespace
+    WHERE n.nspname='public' AND p.proname IN
+      ('rod_workspace_role','rod_asset_path_allowed','rod_create_workspace')
+  LOOP
+    IF has_function_privilege('anon',fn.oid,'EXECUTE') THEN
+      RAISE EXCEPTION 'Anonymous execute still granted: %',fn.proname;
+    END IF;
+    IF NOT has_function_privilege('authenticated',fn.oid,'EXECUTE') THEN
+      RAISE EXCEPTION 'Authenticated caller lost required execution: %',fn.proname;
+    END IF;
+  END LOOP;
+  IF has_function_privilege('anon','public.rod_touch_updated_at()','EXECUTE') THEN
+    RAISE EXCEPTION 'Anonymous execute still granted on trigger function';
+  END IF;
+END $$;

@@ -39,5 +39,10 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261117000000_rod_v3.sql
       - name: Apply RLS hardening migration
         run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261117010000_rod_hardening.sql
+      - name: Simulate Supabase explicit grants to anonymous role
+        run: |
+          psql -v ON_ERROR_STOP=1 -c "GRANT EXECUTE ON FUNCTION public.rod_workspace_role(uuid), public.rod_asset_path_allowed(text,boolean), public.rod_create_workspace(text), public.rod_touch_updated_at() TO anon"
+      - name: Apply explicit-grant hardening migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261117020000_rod_function_grants.sql
       - name: Validate RLS isolation and asset policy
         run: psql -v ON_ERROR_STOP=1 -f tests/sql/rls_smoke.sql

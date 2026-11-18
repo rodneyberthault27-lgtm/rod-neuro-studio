@@ -65,3 +65,18 @@ permitida. O GitHub Actions executa smoke tests dessas regras em PostgreSQL
 descartável, mas isso não substitui um teste com Auth e Storage reais.
 
 Checklist de aceite e procedimentos: `docs/qa/homologation-v3.md`.
+
+## Fase 1.2: grants de funções no Supabase
+
+Aplicar `supabase/migrations/20261117020000_rod_function_grants.sql`
+após as migrações inicial e de hardening. A auditoria do projeto Supabase
+de homologação confirmou permissões `EXECUTE` explícitas para `anon`
+em três funções com `SECURITY DEFINER`, apesar de `REVOKE ... FROM PUBLIC`
+nas migrações anteriores. Esta migration remove esses grants,
+mantendo os necessários para `authenticated`. O CI simula os grants
+do Supabase e valida sua revogação em PostgreSQL isolado.
+
+As funções `rod_create_workspace`, `rod_workspace_role` e
+`rod_asset_path_allowed` permanecem acessíveis a usuários autenticados
+por necessidade de RPC/RLS; tais grants são intencionais e devem ser
+revisados caso o modelo de autorização mude.
