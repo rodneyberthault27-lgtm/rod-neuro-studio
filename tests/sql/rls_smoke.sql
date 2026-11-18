@@ -31,7 +31,7 @@ end $$;
 
 
 -- Hardening 1: updates may change commercial text only, never identity fields.
-do $
+do $$
 begin
   begin
     update public.rod_projects set created_by = auth.uid()
@@ -44,10 +44,10 @@ begin
     where id = current_setting('rod.test.project')::uuid;
     raise exception 'User updated immutable project workspace';
   exception when insufficient_privilege then null; end;
-end $;
+end $$;
 
 -- Hardening 2: workspace/project UUIDs and generated asset UUID must match.
-do $
+do $$
 begin
   begin
     insert into public.rod_assets(
@@ -61,7 +61,7 @@ begin
     );
     raise exception 'Invalid cross-workspace asset metadata accepted';
   exception when check_violation then null; end;
-end $;
+end $$;
 
 -- Path is private, tied to its matching workspace and project.
 select public.rod_asset_path_allowed(:'wa'||'/'||:'pa'||'/123e4567-e89b-42d3-a456-426614174000.png',true) as owner_upload \gset
