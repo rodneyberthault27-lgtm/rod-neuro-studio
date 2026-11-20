@@ -2,6 +2,7 @@
 import {useCallback,useEffect,useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {demoProject,demoBriefing} from '@/lib/demo';
+import {ResearchWorkbench} from '@/components/research-workbench';
 
 type Workspace={id:string;name:string;created_at:string};
 type Project={id:string;workspace_id:string;title:string;objective:string;audience:string;channel:string;status:string;created_at:string;updated_at:string};
@@ -205,6 +206,12 @@ export function StudioWorkspace({email}:{email:string}) {
             </div>
           </form>
         </section>
+        {selected&&<ResearchWorkbench project={selected} busy={busy} onSave={draft=>{
+          void mutate(async()=>{
+            await request('/api/projects/'+selected.id+'/documents',sendJson(draft));
+            await refreshFiles(selected.id);
+          });
+        }}/>}
         {selected&&<div className="columns">
           <div>
             <section className="panel">
