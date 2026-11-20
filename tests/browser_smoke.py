@@ -18,11 +18,14 @@ def main():
             page.locator("#view").wait_for(timeout=15000)
             assert page.title() == "ROD Neuro Studio"
             assert "Nenhuma análise" in page.locator("#view").inner_text()
-            for route in ["simulador", "creative", "jornada", "comparar",
+            for route in ["atencao", "simulador", "creative", "jornada", "comparar",
                           "testes", "aprendizados", "historico", "pergunte"]:
                 page.evaluate("(route) => location.hash = '#' + route", route)
                 page.wait_for_timeout(170)
                 assert page.locator("#view").inner_text().strip(), route
+            page.evaluate("() => location.hash = '#atencao'")
+            page.locator("#rodAttentionFile").wait_for(timeout=10000)
+            assert page.locator("#rodAttentionFile").count() == 1
             page.evaluate("() => location.hash = '#projeto'")
             page.locator("#rodNew").wait_for(timeout=10000)
             page.locator("#rodNew").click()
