@@ -32,7 +32,9 @@ def main():
             page.locator("#rodSourceSearch").fill("PubMed")
             assert page.locator("#rodSourcesList .source-record").count() == 1
             page.locator("#rodSourceSearch").fill("")
-            page.evaluate("() => location.hash = '#projeto'")
+            # Test the wizard from a fresh document after filtering in the library.
+            # This avoids a transient hashchange repaint during iframe/model loading.
+            page.goto(URL + "#projeto", wait_until="domcontentloaded", timeout=30000)
             page.locator("#rodNew").wait_for(timeout=10000)
             page.locator("#rodNew").click()
             page.locator("#rodWizard").wait_for(timeout=10000)
