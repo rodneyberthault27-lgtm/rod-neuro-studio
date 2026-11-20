@@ -161,6 +161,7 @@ export function StudioWorkspace({email}:{email:string}) {
           onClick={()=>setProjectId(project.id)}>{project.title}</button>)}
         {!projects.length&&<span className="subtle">Nenhum projeto neste espaço.</span>}
       </nav>
+      <a className="ref-nav-link" href="/referencias">Biblioteca de fontes / 30 favoritos</a>
       <div className="sidebar-bottom">
         <span>{email}</span>
         <button className="text-action" type="button" disabled={busy} onClick={()=>void signOut()}>Sair da conta</button>
