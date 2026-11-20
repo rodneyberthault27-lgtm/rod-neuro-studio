@@ -1,0 +1,61 @@
+name: ROD Studio - Sync GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dist/**'
+      - '.github/workflows/sync-gh-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rod-studio-pages
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate new design and static assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/index.html
+          test -s dist/rod-attention-v3.js
+          test -s dist/rod-references-v3.js
+          grep -q "RESEARCH INTERFACE" dist/index.html
+          grep -q "rod-attention-v3.js" dist/index.html
+          grep -q "rod-references-v3.js" dist/index.html
+          if grep -q "NEXT_PUBLIC_SUPABASE_" dist/index.html; then
+            echo "Unexpected Supabase environment config in public site" >&2
+            exit 1
+          fi
+
+      - name: Publish static files to gh-pages branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          staging="$(mktemp -d)"
+          cp -R dist/. "$staging/"
+          touch "$staging/.nojekyll"
+          git fetch origin gh-pages
+          git checkout -B gh-pages origin/gh-pages
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf -- {} +
+          cp -R "$staging"/. ./
+          git add -A
+          if git diff --cached --quiet; then
+            echo "GitHub Pages files already up to date"
+          else
+            git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "deploy: sync redesigned static site from ${GITHUB_SHA}"
+            git push origin gh-pages
+          fi
