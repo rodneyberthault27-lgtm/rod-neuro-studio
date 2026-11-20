@@ -53,3 +53,7 @@ Preserve o conteúdo existente, faça backup antes de mudanças e teste script/H
 
 ## Sequência ideal
 Briefing → diagnóstico → hipóteses e vieses → direção criativa → predição visual/atlas quando solicitados → protocolo A/B → resultados observados → aprendizado reutilizável.
+
+## Biblioteca de fontes (2026)
+
+Consultar `favoritos-neuromarketing-2026.md` ao propor métodos de Attention, Behavior, Estudos, Neuro Map ou Validation Lab. O inventário contém 30 favoritos de naturezas diferentes. **Não transformar referências comerciais, recursos acadêmicos indexadores ou links privados em achados experimentais.** Mapas preditivos não são eye-tracking; estudos por webcam dependem de consentimento, calibração e participante real; atlas anatômicos não medem persuasão.

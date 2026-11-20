@@ -19,7 +19,7 @@ def main():
             assert page.title() == "ROD Neuro Studio"
             assert "Nenhuma análise" in page.locator("#view").inner_text()
             for route in ["atencao", "simulador", "creative", "jornada", "comparar",
-                          "testes", "aprendizados", "historico", "pergunte"]:
+                          "testes", "aprendizados", "fontes", "historico", "pergunte"]:
                 page.evaluate("(route) => location.hash = '#' + route", route)
                 page.wait_for_timeout(170)
                 assert page.locator("#view").inner_text().strip(), route

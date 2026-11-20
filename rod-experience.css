@@ -265,3 +265,36 @@ input,textarea,select{font-family:var(--f-body)}
   .demo-flag{margin:10px 16px}
 }
 @media(prefers-reduced-motion:reduce){.btn,.tabs a{transition:none}}
+
+/* Biblioteca ROD / referências */
+.source-head{border-bottom:1px solid var(--line);padding-bottom:28px}
+.source-eyebrow{color:var(--accent);font:700 10px ui-monospace,monospace;letter-spacing:.15em}
+.source-head h1{font:700 clamp(35px,3.9vw,58px)/1.07 "Space Grotesk",Inter,sans-serif;letter-spacing:-.05em;max-width:14ch;margin:12px 0}
+.source-head .lead{font-size:14px;line-height:1.75;max-width:68ch}
+.source-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--surface);border:1px solid var(--line);border-radius:11px;margin:25px 0 30px}
+.source-stats>div{padding:24px;display:grid;gap:7px}
+.source-stats>div+div{border-left:1px solid var(--line)}
+.source-stats strong{font:700 34px "Space Grotesk",Inter,sans-serif}
+.source-stats span{font-size:11px;color:var(--mute)}
+.source-layout{display:grid;grid-template-columns:minmax(220px,.34fr) minmax(0,.66fr);gap:24px}
+.source-filters{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:22px;align-self:start;display:grid;gap:16px}
+.source-filters label{font:700 11px var(--f-body);display:grid;gap:8px}
+.source-filters input,.source-filters select{width:100%;max-width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;font:13px var(--f-body);padding:11px}
+.source-filters p{font:12px/1.7 var(--f-body);color:var(--mute);margin:0}
+.source-filters a{color:var(--accent)}
+.source-count{font:700 11px ui-monospace,monospace;color:var(--mute);margin-bottom:14px}
+.source-list{display:grid;gap:12px}
+.source-record{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:22px}
+.source-record-top{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.source-number{font:700 10px ui-monospace,monospace;color:var(--accent)}
+.source-type{padding:4px 8px;border-radius:5px;border:1px solid var(--line);font:650 10px var(--f-body)}
+.source-review{font:500 10px var(--f-body);color:var(--mute)}
+.source-record h2{font:700 21px "Space Grotesk",Inter,sans-serif;letter-spacing:-.04em;margin:12px 0 8px}
+.source-record p{font:13px/1.65 var(--f-body);color:var(--mute)}
+.source-meta{padding-top:13px;border-top:1px solid var(--line);display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;font:600 11px var(--f-body);color:var(--mute)}
+.source-meta a{color:var(--accent)}
+.source-disclaimer{margin-top:30px;padding:23px;border:1px solid var(--line);background:var(--soft);border-radius:11px}
+.source-disclaimer h2{font:700 19px "Space Grotesk",Inter,sans-serif}
+.source-disclaimer p{font:13px/1.75 var(--f-body);margin:0}
+@media(max-width:1000px){.source-layout{grid-template-columns:1fr}}
+@media(max-width:680px){.source-stats{grid-template-columns:1fr}.source-stats>div{padding:12px 18px}.source-stats>div+div{border-top:1px solid var(--line);border-left:0}.source-record{padding:19px}}
