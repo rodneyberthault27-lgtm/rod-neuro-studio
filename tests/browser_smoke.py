@@ -26,6 +26,12 @@ def main():
             page.evaluate("() => location.hash = '#atencao'")
             page.locator("#rodAttentionFile").wait_for(timeout=10000)
             assert page.locator("#rodAttentionFile").count() == 1
+            page.evaluate("() => location.hash = '#fontes'")
+            page.locator("#rodSourcesList .source-record").first.wait_for(timeout=10000)
+            assert page.locator("#rodSourcesList .source-record").count() == 30
+            page.locator("#rodSourceSearch").fill("PubMed")
+            assert page.locator("#rodSourcesList .source-record").count() == 1
+            page.locator("#rodSourceSearch").fill("")
             page.evaluate("() => location.hash = '#projeto'")
             page.locator("#rodNew").wait_for(timeout=10000)
             page.locator("#rodNew").click()
