@@ -25,7 +25,16 @@ doc = HTML.read_text(encoding="utf-8")
 parser = JSCollector()
 parser.feed(doc)
 assert '<main class="main" id="view">' in doc, "Main ausente"
-assert ("Três camadas de evidência:" in doc or "EVIDÊNCIA EM TRÊS CAMADAS" in doc), "Aviso de evidência ausente"
+legacy_evidence = ("Três camadas de evidência:" in doc or "EVIDÊNCIA EM TRÊS CAMADAS" in doc)
+new_evidence = all(
+    token in doc for token in (
+        'class="evidence-strip"',
+        'Previsão visual. Sem eye-tracking real.',
+        'Hipótese comportamental. Não é medição cerebral.',
+        'Resultado observado. Somente dados de teste.'
+    )
+)
+assert legacy_evidence or new_evidence, "Três camadas de evidência ausentes"
 assert len(parser.blocks) >= 1, "Script interno ausente"
 with tempfile.TemporaryDirectory() as folder:
     path = Path(folder) / "studio.js"
