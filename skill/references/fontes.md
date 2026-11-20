@@ -56,3 +56,8 @@ Não cite autor em peça de cliente; use na análise interna e quando pedirem a 
 - ECA Digital (Lei 15.211/2025). ANPD NT 27/2024. PL 6.581/2025 e PL 5.441/2025 (tramitação).
 - CONAR — Código e Guia de Publicidade por Influenciadores Digitais (edição 2026).
 - UE — AI Act art. 5; DSA.
+
+## Novos favoritos catalogados em 20/11/2026
+
+Consulte [favoritos-neuromarketing-2026.md](favoritos-neuromarketing-2026.md) para fontes, usos, restrições e estado de verificação.
+O inventário estruturado com 30 entradas está em `knowledge/favoritos-neuromarketing-2026.json`.

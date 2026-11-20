@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="300 50 230 380" width="920" height="1520">
+<rect x="-2000" y="-2000" width="5000" height="5000" fill="#fff"/>
+<g fill="#000">
+<g transform="translate(420,168) rotate(-5) scale(0.86) translate(-420,-186)">
+<path d="M340,190 Q420,184 500,178" fill="none" stroke="#000" stroke-width="17" stroke-linecap="round"/>
+<path d="M353,182 L363,116 L393,158 L420,96 L447,158 L477,116 L487,179" fill="none" stroke="#000" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="363" cy="106" r="12"/>
+<circle cx="420" cy="84" r="14"/>
+<circle cx="477" cy="106" r="12"/>
+</g>
+<path d="M401.0,213 A17,17 0 0 0 372.0,207 A17,17 0 0 0 347.0,230 A21,21 0 0 0 339.0,270 A22,22 0 0 0 341.0,312 A21,21 0 0 0 358.0,350 A22,22 0 0 0 395.0,374 L401.0,362 Z" fill="none" stroke="#000" stroke-width="20" stroke-linejoin="round"/>
+<path d="M401.0,247 C386.0,245 375,256 379,273" fill="none" stroke="#000" stroke-width="16" stroke-linecap="round"/>
+<path d="M343,296 C359,292 371,301 373,316" fill="none" stroke="#000" stroke-width="16" stroke-linecap="round"/>
+<path d="M429.0,213 A17,17 0 0 1 458.0,207 A17,17 0 0 1 483.0,230 A21,21 0 0 1 491.0,270 A22,22 0 0 1 489.0,312 A21,21 0 0 1 472.0,350 A22,22 0 0 1 435.0,374 L429.0,362 Z" fill="none" stroke="#000" stroke-width="20" stroke-linejoin="round"/>
+<path d="M429.0,247.0 C444.0,245.0 455.0,256.0 451.0,273.0" fill="none" stroke="#000" stroke-width="16" stroke-linecap="round"/>
+<path d="M487.0,296.0 C471.0,292.0 459.0,301.0 457.0,316.0" fill="none" stroke="#000" stroke-width="16" stroke-linecap="round"/>
+<path d="M378,380 L378,404" stroke="#000" stroke-width="9" stroke-linecap="round"/>
+<circle cx="378" cy="404" r="7.5"/>
+<path d="M438.0,378 L438.0,395" stroke="#000" stroke-width="9" stroke-linecap="round"/>
+<circle cx="438.0" cy="395" r="6.5"/>
+</g>
+</svg>

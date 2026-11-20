@@ -1,0 +1,114 @@
+# ROD Neuro Studio 3.0 | Fase 1
+
+Workspace privado em Next.js e Supabase. A versão online antiga em dist/ não é substituída.
+A nova aplicação fica em apps/web e requer um Supabase separado para funcionamento autenticado.
+
+## O que está implementado no código
+
+- Login por e-mail e senha e cadastro sujeito à política configurada no Supabase.
+- Cookies SSR via @supabase/ssr e proxy para refresh da sessão no Next.js 16.
+- Identidade verificada no servidor com Auth getUser() em toda API protegida.
+- Workspaces com criação transacional via RPC e permissões Row Level Security.
+- Cadastro e edição de projetos, documentos e briefings append-only (rascunho).
+- Upload privado de PNG/JPG/WebP/PDF até 10 MiB, com URL temporária de visualização.
+- SQL com políticas de acesso por workspace e bucket de Storage privado.
+- Validações Zod, testes unitários, build TypeScript e pipeline GitHub Actions.
+
+Não implementado nesta fase: integração de IA, diagnóstico automático, sincronização Claude Artifact, migração real de clientes, convite de usuários, billing ou deploy no domínio online atual. Os sete laboratórios são explicitamente marcados como pendentes.
+
+## Rodar localmente
+
+1. Crie um projeto Supabase de homologação separado.
+2. Revise e aplique no SQL Editor a migração supabase/migrations/20261117000000_rod_v3.sql da raiz do repositório.
+3. Verifique que o bucket rod-private é privado e que as policies foram criadas.
+4. No Supabase Auth, permita http://localhost:3000 e http://localhost:3000/auth/callback.
+5. Configure e-mail de confirmação e política de signups. Para workspace privado, crie sua conta e depois restrinja novos cadastros.
+6. Copie apps/web/.env.example para apps/web/.env.local e preencha APENAS a URL e chave publicável.
+7. No diretório apps/web, execute:
+
+    npm install
+    npm run typecheck
+    npm test
+    npm run dev
+
+8. Acesse http://localhost:3000/studio, faça login, crie workspace/projeto/documento e anexe um arquivo.
+
+## Testar build sem credenciais
+
+    cd apps/web
+    npm install
+    npm run typecheck
+    npm test
+    npm run build
+
+Sem URL e chave, a tela do Studio exibe um setup seguro. O build em CI não comprova integração real.
+
+## Limitações e segurança
+
+- Validar RLS com DOIS usuários de workspaces diferentes e um viewer antes de usar dados de clientes.
+- Não usar chave service_role no navegador nem incluir credenciais no Git.
+- Validação MIME, tamanho e magic bytes NÃO substitui antivírus, inspeção robusta de PDF ou rate limiting.
+- Storage e Postgres não compartilham transação; o endpoint tenta remover o blob caso falhe a gravação dos metadados. Reconciliador de órfãos fica para próxima etapa.
+- Documentos são imutáveis nesta fase. O Validation Lab com resultados científicos não está integrado.
+- Este código não faz deploy, não atualiza a versão antiga e não recupera documentos do Claude.
+
+## Gate de homologação (Fase 1.1)
+
+Aplicar as migrations `20261117000000_rod_v3.sql` e
+`20261117010000_rod_hardening.sql` **nesta ordem** em um
+Supabase de homologação separado. Nunca usar dados de clientes para testes iniciais.
+
+A migration de hardening restringe UPDATE a título, público, objetivo e canal,
+mantendo IDs, workspace, autoria e estados protegidos. Os caminhos de arquivo
+devem coincidir com o workspace e projeto e terminar em UUID válido e extensão
+permitida. O GitHub Actions executa smoke tests dessas regras em PostgreSQL
+descartável, mas isso não substitui um teste com Auth e Storage reais.
+
+Checklist de aceite e procedimentos: `docs/qa/homologation-v3.md`.
+
+## Fase 1.2: grants de funções no Supabase
+
+Aplicar `supabase/migrations/20261117020000_rod_function_grants.sql`
+após as migrações inicial e de hardening. A auditoria do projeto Supabase
+de homologação confirmou permissões `EXECUTE` explícitas para `anon`
+em três funções com `SECURITY DEFINER`, apesar de `REVOKE ... FROM PUBLIC`
+nas migrações anteriores. Esta migration remove esses grants,
+mantendo os necessários para `authenticated`. O CI simula os grants
+do Supabase e valida sua revogação em PostgreSQL isolado.
+
+As funções `rod_create_workspace`, `rod_workspace_role` e
+`rod_asset_path_allowed` permanecem acessíveis a usuários autenticados
+por necessidade de RPC/RLS; tais grants são intencionais e devem ser
+revisados caso o modelo de autorização mude.
+
+## Exemplo guiado (após login real)
+
+No workspace escolhido, clique em **Criar exemplo com briefing** para gerar
+um projeto e um briefing sintéticos usando as APIs autenticadas do Studio.
+Não são criados automaticamente e não representam dados ou pesquisas reais.
+A operação utiliza duas chamadas, uma para o projeto e outra para o documento;
+se a segunda falhar, o projeto criado permanece para recuperação manual.
+A função exige uma conta autenticada e um workspace com permissão de edição.
+Para evidências e limites dos testes de homologação, veja
+`docs/qa/homologation-v3.md`.
+
+## Prévia isolada para homologação em Vercel (sem substituir o legado)
+
+Configuração sugerida para criar um NOVO projeto na Vercel ligado ao repositório
+\`rodneyberthault27-lgtm/rod-neuro-studio\`:
+- Branch de deploy: \`feature/studio-v3\`; **nunca** \`main\`.
+- Root Directory: \`apps/web\`.
+- Framework Preset: Next.js; runtime Node.js.
+- Environment (somente Preview/Staging, e não produção):
+  \`NEXT_PUBLIC_SUPABASE_URL\` = URL API do projeto de homologação.
+  \`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY\` = chave publicável do mesmo projeto.
+  Nenhuma chave service_role ou secret do Supabase.
+- Autorizar somente o host de Preview e callback
+  \`https://<host-preview>/auth/callback\` na configuração Supabase Auth.
+- Restrinja a exposição pública da prévia antes de usar contas de teste
+  (p.ex., deployment protection da hospedagem). Ajuste signup/e-mail de confirmação.
+- Confirmar \`/api/health\`, login/logoff, projeto, rascunho, upload e URL
+  assinada usando contas reais de teste. Ver \`docs/qa/homologation-v3.md\`.
+
+Esta documentação NÃO configura o dashboard da Vercel nem publica o site.
+Nenhum DNS, \`main\`, site Sites original ou Claude Artifact é alterado.

@@ -17,3 +17,284 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;letter-spacin
 @media(max-width:680px){.top-in{height:auto;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto}.main{margin-left:0}.tabs{height:auto;align-items:center;min-width:0}.tabs a{height:38px;flex:0 0 auto}.brand,.workspace-tools{height:auto}.pick{height:auto}.demo-flag{margin:12px 16px}}
 
 @media(max-width:680px){.project-workspace{display:flex;flex-direction:column}.project-toolbar{order:1}.project-title{order:2}.process-switch{order:3;margin:0 0 18px}.project-board{order:4}.project-bottom{order:5}.project-tools .btn{white-space:nowrap}}
+
+/* ==============================================================
+   ROD / STUDIO 3.0 | RESEARCH INTERFACE
+   Editorial research workspace, three evidence layers, no faux
+   neuro-measurements. Keep the original ROD logo unchanged.
+   ============================================================== */
+:root,:root[data-theme=light]{
+  --rail:252px;
+  --bg:#f4f3ef;
+  --surface:#ffffff;
+  --soft:#eaece8;
+  --ink:#172321;
+  --mute:#66716d;
+  --line:#dce1dc;
+  --accent:#176c61;
+  --on-accent:#ffffff;
+  --process:#176c61;
+  --process-ink:#0d4e46;
+  --lv-prev:#176c61;
+  --lv-hip:#a86240;
+  --lv-res:#3567a0;
+  --f-display:"Space Grotesk",Inter,system-ui,sans-serif;
+  --f-body:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-tag:"Space Grotesk",Inter,sans-serif;
+}
+:root[data-theme=dark]{
+  --bg:#121a19;--surface:#1b2724;--soft:#24322f;
+  --ink:#f3f2eb;--mute:#aabcb6;--line:#395149;
+  --accent:#a7ded1;--on-accent:#10201d;
+  --process-ink:#c7ece3;--lv-prev:#a7ded1;--lv-hip:#f0bc9a;--lv-res:#94bdeb;
+}
+body{font:400 15px/1.65 var(--f-body);background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;letter-spacing:-.008em}
+:focus-visible{outline:2px solid #bb7959;outline-offset:3px}
+::selection{background:#badbcf;color:#172421}
+.top{width:var(--rail);background:#101b19;border-right:1px solid #263c35;
+  box-shadow:16px 0 36px rgba(11,33,28,.035)}
+.top-in{padding:0 0 16px}
+.brand{margin:0 16px;padding:28px 12px 25px;border-bottom:1px solid #32433d}
+.brand .rod-logo{height:89px;width:151px;object-fit:contain;background:#fff;
+  padding:11px;border-radius:8px}
+.brand .brand-sub{font:600 9px/1.5 ui-monospace,SFMono-Regular,monospace;
+  letter-spacing:.18em;color:#9eaea7;max-width:196px;margin-top:14px}
+.pick{margin:23px 16px 6px}
+.pick label{color:#8fa89e;font:600 10px/1.5 ui-monospace,monospace;letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:9px}
+.pick select{font:500 12px var(--f-body);background:#1f302a;color:#f1f4ef;
+  border:1px solid #40564b;border-radius:7px;padding:11px 10px}
+.workspace-tools{margin:auto 18px 14px;gap:9px}
+.workspace-tools button{font-size:11px;min-height:32px;color:#d3e1d9;border:1px solid #485e55;
+  background:transparent;border-radius:6px}
+.tabs{padding:22px 13px 15px;gap:3px}
+.tabs::before{content:"METODOLOGIA / MÓDULOS";color:#899e92;
+  font:600 10px ui-monospace,monospace;letter-spacing:.12em;
+  padding:0 11px 9px}
+.tabs a{font-size:12px;color:#c6d0c8;padding:10px 12px;min-height:42px;
+  letter-spacing:-.008em;line-height:1.3;border-radius:7px;transition:background .16s,color .16s}
+.tabs a .nav-icon,.project-path svg,.project-tools svg{display:none}
+.tabs a[aria-current=page]{background:#e4ece5!important;color:#182b25!important;
+  font-weight:700;box-shadow:inset 3px 0 0 #bb7757}
+.tabs a:hover{background:#253831;color:#fff}
+.tabs .nav-gap{margin-top:12px}
+.studio-topline{margin-left:var(--rail);height:70px;display:flex;align-items:center;
+  justify-content:space-between;gap:16px;padding:0 clamp(22px,3.2vw,58px);
+  background:var(--surface);border-bottom:1px solid var(--line)}
+.studio-topline .studio-kicker{font:700 10px/1.35 ui-monospace,monospace;
+  letter-spacing:.19em;color:var(--accent)}
+.studio-topline strong{display:block;font:700 14px/1.5 var(--f-display);
+  letter-spacing:-.02em}
+.studio-topline .topline-right{display:flex;align-items:center;gap:10px;
+  color:var(--mute);font:600 10px/1.6 ui-monospace,monospace;letter-spacing:.06em}
+.studio-topline .topline-index{background:var(--soft);color:var(--ink);
+  border-radius:5px;padding:4px 9px;font-weight:700}
+.evidence-strip{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0;margin:0 0 0 var(--rail);background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 clamp(22px,3.2vw,58px);color:var(--ink)}
+.evidence-strip .evidence-cell{display:flex;align-items:center;gap:11px;
+  padding:15px 15px 15px 0;min-height:61px}
+.evidence-strip .evidence-cell+.evidence-cell{border-left:1px solid var(--line);padding-left:18px}
+.evidence-cell b{font:700 10px ui-monospace,monospace;letter-spacing:.06em;
+  color:var(--accent);flex:none}
+.evidence-cell span{font:500 11px/1.35 var(--f-body);color:var(--mute)}
+.main{padding:36px clamp(22px,3.2vw,58px) 90px;margin-left:var(--rail);
+  min-height:calc(100vh - 132px);max-width:1800px}
+#view>header{padding-bottom:26px;margin-bottom:24px;border-color:var(--line)}
+#view>header::before{content:"ROD / LABORATÓRIO DE COMPORTAMENTO";
+  display:block;color:var(--accent);font:700 10px ui-monospace,monospace;
+  letter-spacing:.14em;margin-bottom:12px}
+#view>header h1{font:700 clamp(36px,3.85vw,58px)/1.05 var(--f-display);
+  letter-spacing:-.055em;max-width:15ch;text-wrap:balance}
+#view>header .lead{font:400 15px/1.75 var(--f-body);max-width:70ch;color:var(--mute)}
+h2,h3{letter-spacing:-.035em}
+.card,.empty,.etapa,.panel{border:1px solid var(--line);background:var(--surface);
+  box-shadow:0 2px 0 rgba(17,31,26,.015);border-radius:13px;padding:24px}
+.card h2,.empty h2{font:700 22px/1.15 var(--f-display);letter-spacing:-.04em}
+.card h3{font:700 16px/1.3 var(--f-display)}
+.grid{gap:19px}
+.btn{background:var(--accent);border:1px solid var(--accent);border-radius:8px;
+  color:var(--on-accent);font:650 12px var(--f-body);padding:11px 17px;
+  min-height:43px;transition:transform .18s,filter .18s}
+.btn:hover{filter:brightness(.92);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{background:var(--soft)}
+.chip{border-radius:6px}
+.lvl{border-radius:5px;font:700 10px ui-monospace,monospace;letter-spacing:.045em;
+  text-transform:uppercase}
+.project-toolbar{margin-bottom:20px}
+.project-path{font:650 11px ui-monospace,monospace;color:var(--accent);letter-spacing:.055em}
+.project-title{margin-bottom:24px;align-items:center}
+.project-title::before{content:"WORKSPACE / PROJETO ATIVO";position:absolute;
+  font:700 10px ui-monospace,monospace;letter-spacing:.12em;color:var(--accent);
+  transform:translateY(-87px)}
+.project-title h1{font:700 clamp(40px,4.2vw,62px)/1.05 var(--f-display);
+  letter-spacing:-.055em}
+.project-title p{font-size:14px;line-height:1.7}
+.project-status{padding:9px 12px;border-radius:7px;font:600 10px ui-monospace,monospace;
+  white-space:normal;background:var(--soft)}
+.brain-board{border:1px solid #3d4846;border-radius:14px;background:
+  radial-gradient(ellipse at 47% 40%,#51464a 0%,#25272b 45%,#101b1c 100%);
+  box-shadow:0 16px 40px rgba(17,26,21,.12)}
+.brain-board .stage{height:500px;min-height:400px;background:transparent}
+.brain-top{padding:18px 23px;border-color:#4e514d}
+.brain-top strong{font:700 11px ui-monospace,monospace;letter-spacing:.075em;color:#f7e9e3}
+.brain-top span{color:#d4c7c1}
+.brain-floor{border-color:#4e514d;padding:16px 23px;color:#e9ded8}
+.brain-floor span{max-width:72ch}
+.brain-floor a{color:#fff}
+.brain-readout{border-radius:14px;padding:29px}
+.readout-top{margin-bottom:24px}
+.readout-h{font:700 clamp(25px,2.2vw,36px)/1.15 var(--f-display);
+  letter-spacing:-.045em}
+.readout-simple{font-size:14px;line-height:1.8}
+.process-switch{border-radius:11px;box-shadow:0 2px 12px rgba(13,34,26,.03)}
+.process-switch button{min-height:86px;padding:20px 14px}
+.process-switch button[aria-pressed=true]{background:var(--soft)}
+.process-switch button b{font-weight:700}
+.project-bottom{margin-top:35px}
+.project-material,.project-next{border-color:var(--line);padding-top:24px}
+.project-material h2,.project-next h2{font:700 17px var(--f-display)}
+.project-steps a{border-radius:7px;padding:10px 12px;font-size:12px}
+.sim{gap:20px}
+.stage{background:#101b1b;border:1px solid #3a4a45}
+.stage .vis button{border-radius:7px;background:#263a35dd;border-color:#4b5c55}
+.stage .hint{color:#dce4de}
+.meter .bar{background:var(--soft)}
+.wizard{max-width:840px}
+.wizard h1{font:700 clamp(35px,3.3vw,51px)/1.1 var(--f-display);
+  letter-spacing:-.045em}
+.wizard-panel input:not([type=checkbox]),.wizard-panel textarea,.wizard-panel select,
+input,textarea,select{font-family:var(--f-body)}
+.wizard-panel input:not([type=checkbox]),.wizard-panel textarea,.wizard-panel select,
+.choice{border-radius:8px}
+.choice[aria-pressed=true]{border-color:var(--accent);background:var(--soft)}
+.demo-flag{margin:12px 20px 0 calc(var(--rail) + 20px)}
+/* Attention Lab */
+.attention-head{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;
+  padding-bottom:27px;border-bottom:1px solid var(--line)}
+.attention-head .eyebrow{font:700 10px ui-monospace,monospace;letter-spacing:.17em;color:var(--accent)}
+.attention-head h1{font:700 clamp(38px,4.1vw,62px)/1.06 var(--f-display);
+  letter-spacing:-.06em;margin:12px 0;max-width:16ch}
+.attention-head p{max-width:66ch;font-size:14px;color:var(--mute);line-height:1.75}
+.attention-tag{display:inline-block;border:1px solid var(--line);background:var(--surface);
+  border-radius:8px;padding:9px 12px;font:700 11px ui-monospace,monospace;
+  color:var(--accent);white-space:nowrap}
+.attention-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.75fr);
+  gap:21px;margin-top:23px}
+.attention-workspace,.attention-sidebar{min-width:0}
+.attention-workspace{border-radius:14px;border:1px solid #334540;
+  overflow:hidden;background:#111b1b}
+.attention-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:14px 19px;border-bottom:1px solid #344640;color:#e5e9e3}
+.attention-toolbar strong{font:700 10px ui-monospace,monospace;letter-spacing:.14em}
+.attention-toolbar span{font:500 11px ui-monospace,monospace;color:#b9c4bb}
+.attention-canvas{min-height:390px;display:flex;align-items:center;justify-content:center;
+  padding:22px;position:relative;background:radial-gradient(circle at 50% 50%,#2e3e3a,#111b1b 69%)}
+.attention-canvas canvas{display:none;max-width:100%;max-height:610px;
+  width:auto;height:auto;object-fit:contain;border:1px solid #677671}
+.attention-empty{max-width:380px;text-align:center;color:#dfe5dd;padding:60px 28px}
+.attention-empty .attention-empty-number{font:700 12px ui-monospace,monospace;color:#9dcfc3;letter-spacing:.17em}
+.attention-empty h2{font:700 28px/1.14 var(--f-display);margin:15px auto 10px;letter-spacing:-.05em}
+.attention-empty p{font-size:13px;color:#aabbb2;line-height:1.7}
+.attention-controls{padding:15px 18px;border-top:1px solid #344640;display:flex;gap:8px;flex-wrap:wrap}
+.attention-controls button{border-radius:6px;border:1px solid #5e6c63;background:#1e302a;
+  color:#e7eae3;padding:9px 11px;font:600 11px var(--f-body)}
+.attention-controls button[aria-pressed=true]{background:#dfece5;color:#132923;border-color:#dfece5}
+.attention-controls button:disabled{opacity:.43}
+.attention-sidebar .card{margin-bottom:18px;padding:23px}
+.attention-sidebar h2{font:700 19px/1.2 var(--f-display)}
+.attention-sidebar p,.attention-sidebar li{font-size:13px;color:var(--mute);line-height:1.65}
+.attention-sidebar ol{padding-left:18px}
+.attention-file-label{display:block;font:700 11px ui-monospace,monospace;letter-spacing:.08em;
+  color:var(--ink);margin-bottom:11px}
+.attention-file{width:100%;font-size:12px;border:1px dashed var(--accent);
+  border-radius:8px;background:var(--soft);padding:12px;max-width:100%}
+.attention-filename{font:500 12px var(--f-body);color:var(--mute);margin-top:10px;word-break:break-word}
+.attention-warning{padding:17px 18px;background:#e8eee9;border-left:3px solid #176c61;
+  border-radius:6px;font-size:12px;line-height:1.65;color:#244a42}
+.attention-warning strong{display:block;margin-bottom:5px}
+.attention-legend{display:flex;align-items:center;gap:12px;color:#d5dbd5;
+  font:600 10px ui-monospace,monospace;letter-spacing:.07em}
+.attention-legend .legend-gradient{width:110px;height:8px;border-radius:5px;
+  background:linear-gradient(90deg,#243969,#4fafe0,#e8d469,#ef763c);flex:none}
+.attention-error{color:#f2a899;font-size:12px;min-height:0;margin:10px 0 0}
+@media(max-width:1250px){.attention-grid{grid-template-columns:minmax(0,1fr)}.attention-sidebar{display:grid;grid-template-columns:1fr 1fr;gap:18px}.attention-sidebar .card{margin:0}}
+@media(max-width:1180px){:root,:root[data-theme=light]{--rail:216px}.brand .rod-logo{width:145px}.main{padding:28px}.studio-topline,.evidence-strip{padding-left:28px;padding-right:28px}}
+@media(max-width:900px){.brain-board .stage{height:410px}.project-title::before{display:none}.evidence-cell span{font-size:10px}}
+@media(max-width:680px){
+  :root,:root[data-theme=light]{--rail:0px}
+  .top{position:relative;width:100%;border-right:0;border-bottom:1px solid #395146}
+  .top-in{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto}
+  .brand{padding:12px 14px;margin:0;border:0;display:flex;align-items:center;gap:10px}
+  .brand .rod-logo{width:90px;height:53px;padding:6px}
+  .brand .brand-sub{margin:0;font-size:9px;line-height:1.4;max-width:170px}
+  .workspace-tools{grid-row:1;grid-column:2;margin:0 12px 0 0;align-content:center}
+  .pick{grid-column:1/-1;margin:2px 14px 10px}
+  .tabs{grid-column:1/-1;flex-direction:row;align-items:stretch;overflow-x:auto;
+    padding:9px 10px 11px;gap:5px;border-top:1px solid #32493f;scrollbar-width:thin}
+  .tabs::before{display:none}
+  .tabs a{flex:none;white-space:nowrap;font-size:11px;min-height:34px;padding:8px 12px}
+  .tabs .nav-gap{margin:0}
+  .studio-topline{margin-left:0;padding:0 16px;height:60px}
+  .studio-topline strong{font-size:12px}
+  .studio-topline .topline-right{font-size:9px}
+  .evidence-strip{margin-left:0;grid-template-columns:1fr;padding:9px 16px}
+  .evidence-strip .evidence-cell{padding:7px 0;min-height:0}
+  .evidence-strip .evidence-cell+.evidence-cell{border:0;padding:7px 0}
+  .evidence-strip .evidence-cell b{min-width:26px}
+  .evidence-strip .evidence-cell span{font-size:10px}
+  .main{margin-left:0;padding:25px 16px 70px}
+  #view>header h1{font-size:36px}
+  .project-title h1{font-size:36px}
+  .card,.empty,.etapa{padding:19px}
+  .brain-board .stage{height:360px;min-height:340px}
+  .brain-top{padding:13px 15px}
+  .brain-floor{padding:13px 15px}
+  .attention-head{display:block}
+  .attention-tag{margin-top:13px}
+  .attention-grid{grid-template-columns:1fr;gap:14px}
+  .attention-sidebar{display:block}
+  .attention-sidebar .card{margin-bottom:14px}
+  .attention-canvas{min-height:280px;padding:12px}
+  .attention-controls{padding:10px;gap:6px}
+  .attention-controls button{font-size:10px;min-height:37px}
+  .attention-toolbar{padding:13px}
+  .attention-legend{display:none}
+  .demo-flag{margin:10px 16px}
+}
+@media(prefers-reduced-motion:reduce){.btn,.tabs a{transition:none}}
+
+/* Biblioteca ROD / referências */
+.source-head{border-bottom:1px solid var(--line);padding-bottom:28px}
+.source-eyebrow{color:var(--accent);font:700 10px ui-monospace,monospace;letter-spacing:.15em}
+.source-head h1{font:700 clamp(35px,3.9vw,58px)/1.07 "Space Grotesk",Inter,sans-serif;letter-spacing:-.05em;max-width:14ch;margin:12px 0}
+.source-head .lead{font-size:14px;line-height:1.75;max-width:68ch}
+.source-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--surface);border:1px solid var(--line);border-radius:11px;margin:25px 0 30px}
+.source-stats>div{padding:24px;display:grid;gap:7px}
+.source-stats>div+div{border-left:1px solid var(--line)}
+.source-stats strong{font:700 34px "Space Grotesk",Inter,sans-serif}
+.source-stats span{font-size:11px;color:var(--mute)}
+.source-layout{display:grid;grid-template-columns:minmax(220px,.34fr) minmax(0,.66fr);gap:24px}
+.source-filters{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:22px;align-self:start;display:grid;gap:16px}
+.source-filters label{font:700 11px var(--f-body);display:grid;gap:8px}
+.source-filters input,.source-filters select{width:100%;max-width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;font:13px var(--f-body);padding:11px}
+.source-filters p{font:12px/1.7 var(--f-body);color:var(--mute);margin:0}
+.source-filters a{color:var(--accent)}
+.source-count{font:700 11px ui-monospace,monospace;color:var(--mute);margin-bottom:14px}
+.source-list{display:grid;gap:12px}
+.source-record{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:22px}
+.source-record-top{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.source-number{font:700 10px ui-monospace,monospace;color:var(--accent)}
+.source-type{padding:4px 8px;border-radius:5px;border:1px solid var(--line);font:650 10px var(--f-body)}
+.source-review{font:500 10px var(--f-body);color:var(--mute)}
+.source-record h2{font:700 21px "Space Grotesk",Inter,sans-serif;letter-spacing:-.04em;margin:12px 0 8px}
+.source-record p{font:13px/1.65 var(--f-body);color:var(--mute)}
+.source-meta{padding-top:13px;border-top:1px solid var(--line);display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;font:600 11px var(--f-body);color:var(--mute)}
+.source-meta a{color:var(--accent)}
+.source-disclaimer{margin-top:30px;padding:23px;border:1px solid var(--line);background:var(--soft);border-radius:11px}
+.source-disclaimer h2{font:700 19px "Space Grotesk",Inter,sans-serif}
+.source-disclaimer p{font:13px/1.75 var(--f-body);margin:0}
+@media(max-width:1000px){.source-layout{grid-template-columns:1fr}}
+@media(max-width:680px){.source-stats{grid-template-columns:1fr}.source-stats>div{padding:12px 18px}.source-stats>div+div{border-top:1px solid var(--line);border-left:0}.source-record{padding:19px}}

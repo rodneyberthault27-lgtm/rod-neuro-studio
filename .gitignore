@@ -6,3 +6,9 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+
+# Private legacy exports and local migration output
+migration-private/
+private-exports/
+**/staging-private/
+*.rod-legacy-private.json
