@@ -91,3 +91,24 @@ se a segunda falhar, o projeto criado permanece para recuperação manual.
 A função exige uma conta autenticada e um workspace com permissão de edição.
 Para evidências e limites dos testes de homologação, veja
 `docs/qa/homologation-v3.md`.
+
+## Prévia isolada para homologação em Vercel (sem substituir o legado)
+
+Configuração sugerida para criar um NOVO projeto na Vercel ligado ao repositório
+\`rodneyberthault27-lgtm/rod-neuro-studio\`:
+- Branch de deploy: \`feature/studio-v3\`; **nunca** \`main\`.
+- Root Directory: \`apps/web\`.
+- Framework Preset: Next.js; runtime Node.js.
+- Environment (somente Preview/Staging, e não produção):
+  \`NEXT_PUBLIC_SUPABASE_URL\` = URL API do projeto de homologação.
+  \`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY\` = chave publicável do mesmo projeto.
+  Nenhuma chave service_role ou secret do Supabase.
+- Autorizar somente o host de Preview e callback
+  \`https://<host-preview>/auth/callback\` na configuração Supabase Auth.
+- Restrinja a exposição pública da prévia antes de usar contas de teste
+  (p.ex., deployment protection da hospedagem). Ajuste signup/e-mail de confirmação.
+- Confirmar \`/api/health\`, login/logoff, projeto, rascunho, upload e URL
+  assinada usando contas reais de teste. Ver \`docs/qa/homologation-v3.md\`.
+
+Esta documentação NÃO configura o dashboard da Vercel nem publica o site.
+Nenhum DNS, \`main\`, site Sites original ou Claude Artifact é alterado.

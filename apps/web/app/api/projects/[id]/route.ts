@@ -1,3 +1,4 @@
+import {verifyMutationOrigin} from '@/lib/request-security';
 import { json, readJson, readProject, withUser } from '@/lib/api';
 import { patchProjectSchema, uuid } from '@/lib/validators';
 export const dynamic = 'force-dynamic';
@@ -12,6 +13,7 @@ export async function GET(_request:Request,{params}:Ctx) {
   return json({project:data});
 }
 export async function PATCH(request:Request,{params}:Ctx) {
+  if(!verifyMutationOrigin(request)) return json({error:'Origem da requisição não permitida.'},403);
   const {id}=await params;
   if(!uuid.safeParse(id).success) return json({error:'Projeto inválido.'},400);
   const auth=await withUser(); if(!auth.ok) return auth.response;

@@ -1,3 +1,4 @@
+import {verifyMutationOrigin} from '@/lib/request-security';
 import { randomUUID } from 'node:crypto';
 import { json, readProject, withUser } from '@/lib/api';
 import { assetMimeTypes, detectAllowedMime, maxAssetBytes, uuid } from '@/lib/validators';
@@ -18,6 +19,7 @@ export async function GET(_request:Request,{params}:Ctx) {
 }
 
 export async function POST(request:Request,{params}:Ctx) {
+  if(!verifyMutationOrigin(request)) return json({error:'Origem da requisição não permitida.'},403);
   const {id}=await params;
   if(!uuid.safeParse(id).success) return json({error:'Projeto inválido.'},400);
   const auth=await withUser(); if(!auth.ok) return auth.response;

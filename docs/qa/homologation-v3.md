@@ -92,3 +92,19 @@ autorizadas. A versão legada permanece isolada.
 **Pendências de release:** verificação de segurança restante, controle de
 cadastros, limites de abuso e upload, antivírus/inspeção de PDF, LGPD
 e plano de rollback.
+
+## Fase 2 | Proteção de origem e aplicação de homologação
+
+Todos os endpoints POST/PATCH autenticados validam o cabeçalho Origin e rejeitam
+requisições sem Origin ou de outra origem, complementando cookies SameSite
+e políticas RLS. Existe cobertura automatizada para as seis rotas mutáveis,
+incluindo cadastro de workspaces, projetos, documentos, upload e logout.
+
+A implementação exige HTTPS na hospedagem real (HTTP liberado somente
+para localhost). Se um proxy for usado, ele deve preservar o URL público
+em request.url; não confiar em Host/X-Forwarded-Host fornecido pelo cliente.
+A aplicação nunca utiliza service_role nem segredo no bundle do navegador.
+
+Estado de deploy: **não publicado**. A integração com o provedor de
+hospedagem não está autorizada a partir do repositório neste estágio.
+Login real e Storage HTTP ainda aguardam testes ponta a ponta.

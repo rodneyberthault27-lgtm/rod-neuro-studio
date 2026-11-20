@@ -1,3 +1,4 @@
+import {verifyMutationOrigin} from '@/lib/request-security';
 import { json, readJson, withUser } from '@/lib/api';
 import { workspaceSchema } from '@/lib/validators';
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,7 @@ export async function GET() {
   return json({workspaces:data ?? []});
 }
 export async function POST(request:Request) {
+  if(!verifyMutationOrigin(request)) return json({error:'Origem da requisição não permitida.'},403);
   const auth = await withUser(); if (!auth.ok) return auth.response;
   try {
     const input = workspaceSchema.safeParse(await readJson(request));
